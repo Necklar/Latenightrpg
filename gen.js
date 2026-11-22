@@ -4,31 +4,55 @@
 const GEN = {
   first:["Dolores","Marv","Bunny","Sal","Trudy","Irv","Gloria","Chet","Wanda","Morty","Pearl","Rocco","Edna","Vic","Fran","Duke","Bev","Stan","Myrna","Lou"],
   last:["Finkel","Margolis","Petrakis","Dubrow","Kessler","Santangelo","Pruitt","Lomax","Feeney","Castellano","Biddle","Ostrowski","Plunkett","Gorski","Vance","Tuttle"],
-  jobs:[{j:"tax attorney",t:"dull"},{j:"lounge singer",t:"charming"},{j:"competitive yodeler",t:"odd"},{j:"former child star",t:"volatile"},
-        {j:"subway conductor",t:"charming"},{j:"amateur ventriloquist",t:"odd"},{j:"pro wrestling manager",t:"volatile"},{j:"orthodontist",t:"dull"},
-        {j:"psychic to the pets of the rich",t:"odd"},{j:"disco roller skating champion",t:"charming"},{j:"Off-Off-Broadway playwright",t:"volatile"},
-        {j:"weather balloon enthusiast",t:"dull"},{j:"stunt double",t:"charming"},{j:"insurance adjuster",t:"dull"},{j:"minor league mascot",t:"odd"}],
   from:["Staten Island","Hoboken","Scranton","Flushing","Buffalo","Paramus","Cleveland","the Bronx","Duluth","Yonkers"],
-  quirk:["brought a ferret named Duke","won't stop doing card tricks","insists on sitting on the desk","is wearing two watches and won't say why",
-         "has a laugh that sounds like a car alarm","answers every question with a question","arrived in full scuba gear","keeps calling you by the wrong name",
-         "brought their mother, who heckles","has a parrot that only knows your name"],
-  promo:["a cookbook called \"Soups of Regret\"","a self-help cassette, \"Stop Being Yourself\"","a line of novelty lamps","a one-person show about their divorce",
-         "an exercise record, \"Sweatin' in Secaucus\"","a perfume for dogs","a board game about filing taxes","a thriller novel set entirely in a laundromat"],
+  /* Each job has matching talents, quirks and things to promote */
+  jobs:[
+    {j:"competitive yodeler",t:"odd",talent:["Will yodel today's weather forecast.","Can yodel any song you name."],
+     quirk:["Warms up constantly backstage.","Considers yodeling a serious art form."],promo:["an instructional album, \"Yodel With Confidence\"","the regional yodeling finals this weekend"]},
+    {j:"tax attorney",t:"dull",talent:["Can recite this year's tax code changes from memory.","Will find a deduction for anything on your desk."],
+     quirk:["Brought receipts for everything, including the cab ride over.","Asks how much the show pays its writers."],promo:["a paperback guide to deductions","a free tax seminar at a Holiday Inn"]},
+    {j:"lounge singer",t:"charming",talent:["Will sing a standard with Lenny's band.","Can sing any song in the style of any other singer."],
+     quirk:["Calls everyone \"sweetheart.\"","Brought a personal spotlight operator."],promo:["a live album recorded in Atlantic City","a two-week run at a Catskills resort"]},
+    {j:"former child star",t:"volatile",talent:["Can still do the catchphrase from the old sitcom.","Will reenact a famous scene from the old sitcom."],
+     quirk:["Does not like being asked about the catchphrase.","Brought a scrapbook of old reviews."],promo:["a comeback dinner theater tour","a tell-all memoir"]},
+    {j:"subway conductor",t:"charming",talent:["Can announce every stop on the A train from memory.","Can identify any subway line by the sound of its brakes."],
+     quirk:["Is wearing the uniform.","Keeps checking a pocket watch."],promo:["the Transit Authority's new courtesy campaign","a retirement party next week after 30 years"]},
+    {j:"ventriloquist",t:"odd",talent:["Brought a dummy, Mr. Pemberton, who will do most of the talking.","Will have the dummy interview you."],
+     quirk:["Will not speak without the dummy.","Says the dummy does not like you."],promo:["a children's show pilot that hasn't been picked up","a Vegas lounge act"]},
+    {j:"pro wrestling manager",t:"volatile",talent:["Will deliver a threatening speech about any topic you give.","Can throw a chair without hitting anyone."],
+     quirk:["Is wearing sunglasses and a cape.","Refers to you as \"the so-called host.\""],promo:["a Saturday night wrestling card in Queens","a grudge match he says is real"]},
+    {j:"orthodontist",t:"dull",talent:["Has a collection of 400 retainers.","Can identify celebrities by their teeth."],
+     quirk:["Keeps commenting on people's teeth.","Brought a model of a jaw."],promo:["a dental hygiene filmstrip for schools","a practice opening in Paramus"]},
+    {j:"pet psychic",t:"odd",talent:["Will read the mind of any animal in the building.","Says she can talk to the pigeons on the roof."],
+     quirk:["Says the studio has a strange energy.","Brought a client's poodle."],promo:["a book of conversations with Park Avenue poodles","a pet psychic hotline"]},
+    {j:"roller disco champion",t:"charming",talent:["Will skate a routine across the stage.","Can skate backwards while juggling."],
+     quirk:["Will not take off the skates.","Brought a portable disco ball."],promo:["a roller rink opening in New Jersey","an exercise record for skaters"]},
+    {j:"playwright",t:"volatile",talent:["Will perform a monologue from the new play.","Will critique your monologue."],
+     quirk:["Considers television beneath serious art.","Brought a copy of the script and won't put it down."],promo:["a four-hour play opening in a church basement","a one-act festival in the East Village"]},
+    {j:"weather balloon hobbyist",t:"dull",talent:["Brought a weather balloon and wants to launch it from the roof.","Can predict tomorrow's weather by touching the air."],
+     quirk:["Talks about air pressure constantly.","Brought a barometer."],promo:["a newsletter with 60 subscribers","a balloon launch in Central Park on Sunday"]},
+    {j:"stunt performer",t:"charming",talent:["Will fall down the studio stairs on cue.","Will set a sleeve on fire and put it out."],
+     quirk:["Lists every bone ever broken.","Has never been in a scene where anyone sees the face."],promo:["an action movie opening Friday","a stunt show at a theme park"]},
+    {j:"minor league mascot",t:"odd",talent:["Will perform in full costume.","Will lead the audience in a cheer."],
+     quirk:["Does not speak while in costume.","Communicates only with gestures."],promo:["the Scranton team's dollar hot dog night","opening day next month"]},
+    {j:"insurance adjuster",t:"dull",talent:["Can estimate the value of anything on your desk.","Will assess the studio for hazards."],
+     quirk:["Has already noted three fire code violations.","Asks if you have a policy."],promo:["an industry award just won","a seminar on home safety"]}
+  ],
 
   bitT:[
-    {n:"{Noun} Court",d:"You preside as judge over disputes between audience members and their {noun}s."},
-    {n:"Speed {Gerund}",d:"Audience members race to {verb} things against the clock while Lenny keeps time on the cowbell."},
-    {n:"Ask a {Person}",d:"A real {person} from the neighborhood answers viewer mail, live and unrehearsed."},
-    {n:"The {Adj} {Noun} Awards",d:"You hand out trophies to the {adj} {noun}s in Manhattan."},
-    {n:"{Noun} Cam",d:"Strap a camera to a {noun} and see where it ends up."},
-    {n:"Late Night {Noun} Theater",d:"The staff performs a dramatic reading using {noun}s as the entire cast."}
+    {n:"{Noun} Court",d:"You act as judge in disputes between audience members and their {noun}s."},
+    {n:"Speed {Gerund}",d:"Audience members race to {verb} things against the clock."},
+    {n:"Ask a {Person}",d:"A {person} from the neighborhood answers viewer mail live."},
+    {n:"The {Adj} {Noun} Awards",d:"You give trophies for the {adj} {noun}s in Manhattan."},
+    {n:"{Noun} Cam",d:"A camera is attached to a {noun} and sent somewhere in the city."},
+    {n:"Late Night {Noun} Theater",d:"The staff performs a dramatic reading using {noun}s as the cast."}
   ],
   noun:["toaster","pigeon","bagel","traffic cone","parking ticket","houseplant","lawn flamingo","rotary phone","bowling trophy","garden gnome"],
   verb:[["iron","Ironing"],["whistle","Whistling"],["knit","Knitting"],["juggle","Juggling"],["yodel","Yodeling"],["gift-wrap","Gift-Wrapping"]],
   person:["Cab Driver","Doorman","Hot Dog Vendor","Crossing Guard","Tugboat Captain","Lunch Lady","Locksmith","Night Janitor"],
   adj:["saddest","loudest","most suspicious","shiniest","least necessary"],
-  bitWin:["\"{b}\" takes on a life of its own. By the end the audience is chanting.","It's stupid in exactly the right way. Walt holds the shot an extra beat because it's that good.","Nobody saw it coming, including the writers. \"{b}\" is a hit."],
-  bitLose:["Nobody understands the premise, including you.","It's three minutes of polite confusion and one cough.","Halfway through, a writer mouths \"I'm sorry\" from the wings."],
+  bitWin:["The bit worked. The audience laughed throughout.","The bit worked. The audience cheered at the end."],
+  bitLose:["The bit did not work. The audience was quiet.","The bit did not work. The audience was confused by the premise."],
 
   hSubj:["CITY COUNCIL","QUEENS MAN","PARKING DEPT.","SUBWAY RATS","MAYOR'S OFFICE","BROOKLYN BAKERY","NEW JERSEY","ZOO OFFICIALS","LOCAL PSYCHIC","STATEN ISLAND FERRY"],
   hVerb:["DECLARES WAR ON","UNVEILS PLAN FOR","LOSES","FILES SUIT AGAINST","CANNOT EXPLAIN","DENIES ANY LINK TO","BANS","FALLS IN LOVE WITH"],
@@ -42,65 +66,64 @@ const titleCase=s=>s.split(" ").map(cap).join(" ");
 function genGuest(){
   const j=pick(GEN.jobs);
   const name=pick(GEN.first)+" "+pick(GEN.last);
-  const t=Math.random()<.7?j.t:pick(["charming","dull","volatile","odd"]);
-  return {name,t,gen:true,d:`${cap(art(j.j))} from ${pick(GEN.from)} who ${pick(GEN.quirk)}. Here to promote ${pick(GEN.promo)}.`};
+  const t=Math.random()<.8?j.t:pick(["charming","dull","volatile","odd"]);
+  return {name,t,gen:true,d:`${cap(art(j.j))} from ${pick(GEN.from)}. ${pick(j.talent)} ${pick(j.quirk)} Promoting ${pick(j.promo)}.`};
 }
 
 function genBit(){
   const T=pick(GEN.bitT), noun=pick(GEN.noun), v=pick(GEN.verb), person=pick(GEN.person), adj=pick(GEN.adj);
   const fill=s=>s.replace(/\{Noun\}/g,titleCase(noun)).replace(/\{noun\}/g,noun).replace(/\{Gerund\}/g,v[1]).replace(/\{verb\}/g,v[0])
     .replace(/\{Person\}/g,person).replace(/\{person\}/g,person.toLowerCase()).replace(/\{Adj\}/g,titleCase(adj)).replace(/\{adj\}/g,adj);
-  const name=fill(T.n);
-  return {name,d:fill(T.d),w:6+Math.floor(Math.random()*11),base:.45+Math.random()*.15,gen:true,
-    win:pick(GEN.bitWin).replace(/\{b\}/g,name),lose:pick(GEN.bitLose).replace(/\{b\}/g,name)};
+  return {name:fill(T.n),d:fill(T.d),w:6+Math.floor(Math.random()*11),base:.45+Math.random()*.15,gen:true,
+    win:pick(GEN.bitWin),lose:pick(GEN.bitLose)};
 }
 
 function genHeadline(){ return `${pick(GEN.hSubj)} ${pick(GEN.hVerb)} ${pick(GEN.hObj)}`; }
 
-/* Running gags: one is chosen each season and escalates every time you play into it */
+/* Running gags: one per season, grows each time you play into it */
 const GAGS = [
-  {name:"Phil the Hot Dog Guy",lines:[
-    "A hot dog vendor named Phil wanders onto the set mid-segment, looking for the bathroom.",
-    "Phil is back. He says he's lost again. This time he brought his cart.",
-    "Phil enters to applause. He has clearly been practicing his entrance.",
-    "Phil arrives in a tuxedo. He has an agent now.",
-    "Phil walks on and the band plays his theme song. You did not authorize a theme song. It's a great theme song."]},
-  {name:"The Clock That's Always Wrong",lines:[
-    "The studio clock says 4:15. It's 12:40. Nobody can fix it.",
-    "The clock now says 9:02. A man in the audience has brought his own clock in protest.",
-    "The audience counts down together to a time that means nothing. The clock says 2:22.",
-    "The clock has a fan club. They all wear wristwatches set to the wrong time.",
-    "The clock spins wildly, then stops at exactly the right time. The crowd weeps. Then it's wrong again."]},
+  {name:"Phil the Hot Dog Vendor",lines:[
+    "A hot dog vendor named Phil walks onto the set during a segment. He is looking for the bathroom.",
+    "Phil walks onto the set again. He has his cart with him this time.",
+    "Phil walks on. The audience applauds when they see him.",
+    "Phil walks on wearing a tuxedo. He says he has an agent now.",
+    "Phil walks on and Lenny's band plays a theme song for him."]},
+  {name:"The Studio Clock",lines:[
+    "The studio clock is showing the wrong time. No one has been able to fix it.",
+    "The studio clock is wrong again. An audience member brought their own clock.",
+    "The audience counts down to the time shown on the broken clock.",
+    "Audience members are wearing watches set to the wrong time.",
+    "The studio clock spins and stops at the correct time, then goes wrong again."]},
   {name:"Gary From Dayton",lines:[
-    "A tourist named Gary from Dayton, Ohio is in the front row. He waves at the camera. A lot.",
-    "Gary from Dayton is back. Same seat. Same wave. He says he extended his vacation.",
-    "Gary has made a sign: \"DAYTON LOVES YOU.\" The audience gives him a round of applause.",
-    "Gary has moved to New York. He quit his job. For this.",
-    "Dayton, Ohio declares a Gary Day. The mayor of Dayton calls in live to thank you. Gary is crying."]}
+    "A tourist named Gary from Dayton, Ohio is in the front row. He waves at the camera repeatedly.",
+    "Gary from Dayton is in the front row again. He extended his vacation.",
+    "Gary has a sign that says \"DAYTON LOVES YOU.\"",
+    "Gary has moved to New York so he can attend every taping.",
+    "The mayor of Dayton calls in to declare a Gary Day."]}
 ];
 
-/* Callback events: story threads planted earlier in the season come back */
+/* Callback events: story threads from earlier in the season come back */
 function callbackEvent(th){
   switch(th.type){
-    case "walkoff": return {title:`The return of ${th.name}`,text:`${th.name}'s agent calls. After last time's walk-off, they want to come back and "clear the air."`,
-      a:[{t:"Book the rematch",d:"Lightning, meet bottle.",chance:.55,win:{ratings:9,weird:3},lose:{ratings:-3,patience:-4},
-          wt:`${th.name} walks out, sits down, and says "I owe you an apology." Then walks off again, on purpose, as a bit. The crowd goes wild.`,
-          lt:`${th.name} walks off again. Twice in one season. Somewhere, a record book is updated.`},
-         {t:"Let it go",d:"Some bridges should stay burned.",fx:{morale:2},r:"You let it go. The writers quietly pin the walk-off photo to the bulletin board."}]};
-    case "lincoln": return {title:"A memo from upstairs",text:"The vice president whose Lincoln you flattened has sent a memo. It's just a photograph of the car.",
-      a:[{t:"Send a fruit basket",d:"Shaped like a Lincoln.",fx:{patience:6},r:"He keeps the fruit basket. He does not say thank you. That's a good sign."},
-         {t:"Frame the memo and show it on air",d:"It's honestly a great photo.",fx:{ratings:6,patience:-8,weird:3},r:"The audience gives the photo a standing ovation. The VP watches from home, chewing very slowly."}]};
-    case "revenge": return {title:"Retaliation",text:`The crew from ${th.floor} has had enough of your invasions. Word is they're crashing YOUR show tonight.`,
-      a:[{t:"Welcome them with open arms",d:"Set out chairs. And snacks.",chance:.6,win:{ratings:8,weird:3},lose:{ratings:-3,control:-6},
-          wt:"They storm in and you hand them coffee and a cue card. They end up doing a bit with you. It's great television.",
-          lt:"They take over your desk for six minutes. You watch from the audience. It's humbling."},
-         {t:"Barricade the door",d:"Stu has a ladder and a bad attitude.",fx:{control:4,morale:-2},r:"Stu holds the door for 40 minutes. He is a hero. He is also very tired."}]};
-    case "fans": return {title:"The mailbag overfloweth",text:`Viewers have mailed in over 400 homemade tributes to "${th.bit}." Accounting wants them out of the hallway.`,
-      a:[{t:"Show the best ones on air",d:"There's a diorama.",fx:{ratings:5,morale:2},r:"The diorama is incredible. Somebody in Ohio has way too much time and you love them."},
-         {t:"Donate them to a children's hospital",d:"Good karma.",fx:{patience:4,morale:2},r:"The network sends out a press release about it. They take full credit."}]};
-    case "cult": return {title:`${th.name} mania`,text:`A ${th.name} fan club has formed. Forty of them are outside the building in matching t-shirts.`,
-      a:[{t:"Bring the fan club inside",d:"Fill the front rows.",fx:{ratings:6,weird:3},r:`The fan club chants "${th.name.split(" ")[0].toUpperCase()}!" for the entire monologue. You can't finish a single joke. It's the best monologue of your career.`},
-         {t:"Keep it low-key",d:"Fame is fragile.",fx:{morale:3},r:"You send coffee down to the fans. They frame the cups."}]};
+    case "walkoff": return {title:`${th.name} wants to come back`,text:`${th.name}'s agent called. After the walk-off, ${th.name} wants to return to the show.`,
+      a:[{t:"Book the return visit",d:"Risky.",chance:.55,win:{ratings:9,weird:3,campus:4},lose:{ratings:-3,patience:-4},
+          wt:`${th.name} returned and apologized on air. The audience applauded.`,
+          lt:`${th.name} returned and walked off again.`},
+         {t:"Decline",d:"Nothing changes.",fx:{morale:2},r:"You decline. The staff is relieved."}]};
+    case "lincoln": return {title:"Memo from upstairs",text:"The vice president whose car was damaged by your roof drop sent a memo. It contains only a photograph of the car.",
+      a:[{t:"Send an apology and a fruit basket",d:"Patience goes up.",fx:{patience:6},r:"He accepts the fruit basket. He does not respond to the apology."},
+         {t:"Show the memo on air",d:"Viewers will enjoy it. The vice president will not.",fx:{ratings:6,patience:-8,weird:3,campus:5},r:"The audience applauded the photograph."}]};
+    case "revenge": return {title:"Retaliation",text:`The staff of ${th.floor} plans to interrupt your show tonight in return for your raid.`,
+      a:[{t:"Let them in",d:"Risky.",chance:.6,win:{ratings:8,weird:3,campus:4},lose:{ratings:-3,control:-6},
+          wt:"They came in during the monologue. You did a short bit together. The audience cheered.",
+          lt:"They took over your desk for six minutes."},
+         {t:"Block the door",d:"Stu will handle it.",fx:{control:4,morale:-2,stu:2},r:"Stu kept the door shut for 40 minutes."}]};
+    case "fans": return {title:"Fan mail",text:`More than 400 viewers have mailed in homemade tributes to "${th.bit}." Most are from high school and college students.`,
+      a:[{t:"Show the best ones on air",d:"Builds Campus Buzz.",fx:{ratings:4,morale:2,campus:6},r:"You showed a dozen of them on air. The audience applauded each one."},
+         {t:"Donate them to a children's hospital",d:"The network approves.",fx:{patience:4,morale:2},r:"The network issues a press release about the donation."}]};
+    case "cult": return {title:`${th.name} fan club`,text:`A ${th.name} fan club has formed. About forty members are outside the building.`,
+      a:[{t:"Bring the fan club inside",d:"Builds Campus Buzz.",fx:{ratings:5,weird:3,campus:6},r:`The fan club sat in the front rows and chanted for ${th.name.split(" ")[0]} during the monologue.`},
+         {t:"Keep it low-key",d:"Nothing changes.",fx:{morale:3},r:"You send coffee down to the fans."}]};
   }
 }
 
