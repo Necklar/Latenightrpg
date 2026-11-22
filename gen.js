@@ -39,21 +39,6 @@ const GEN = {
      quirk:["Has already noted three fire code violations.","Asks if you have a policy."],promo:["an industry award just won","a seminar on home safety"]}
   ],
 
-  bitT:[
-    {n:"{Noun} Court",d:"You act as judge in disputes between audience members and their {noun}s."},
-    {n:"Speed {Gerund}",d:"Audience members race to {verb} things against the clock."},
-    {n:"Ask a {Person}",d:"A {person} from the neighborhood answers viewer mail live."},
-    {n:"The {Adj} {Noun} Awards",d:"You give trophies for the {adj} {noun}s in Manhattan."},
-    {n:"{Noun} Cam",d:"A camera is attached to a {noun} and sent somewhere in the city."},
-    {n:"Late Night {Noun} Theater",d:"The staff performs a dramatic reading using {noun}s as the cast."}
-  ],
-  noun:["toaster","pigeon","bagel","traffic cone","parking ticket","houseplant","lawn flamingo","push-button phone","bowling trophy","garden gnome"],
-  verb:[["iron","Ironing"],["whistle","Whistling"],["knit","Knitting"],["juggle","Juggling"],["yodel","Yodeling"],["gift-wrap","Gift-Wrapping"]],
-  person:["Cab Driver","Doorman","Hot Dog Vendor","Crossing Guard","Tugboat Captain","Lunch Lady","Locksmith","Night Janitor"],
-  adj:["saddest","loudest","most suspicious","shiniest","least necessary"],
-  bitWin:["The bit worked. The audience laughed throughout.","The bit worked. The audience cheered at the end."],
-  bitLose:["The bit did not work. The audience was quiet.","The bit did not work. The audience was confused by the premise."],
-
   hSubj:["CITY COUNCIL","QUEENS MAN","PARKING DEPT.","SUBWAY RATS","MAYOR'S OFFICE","BROOKLYN BAKERY","NEW JERSEY","ZOO OFFICIALS","LOCAL PSYCHIC","STATEN ISLAND FERRY"],
   hVerb:["DECLARES WAR ON","UNVEILS PLAN FOR","LOSES","FILES SUIT AGAINST","CANNOT EXPLAIN","DENIES ANY LINK TO","BANS","FALLS IN LOVE WITH"],
   hObj:["PIGEONS","A GIANT BAGEL","DAYLIGHT SAVINGS","JAYWALKING","THE LETTER Q","ITS OWN SHADOW","A HAUNTED TOLLBOOTH","DISCO","SPATULAS"]
@@ -70,12 +55,37 @@ function genGuest(){
   return {name,t,gen:true,d:`${cap(art(j.j))} from ${pick(GEN.from)}. ${pick(j.talent)} ${pick(j.quirk)} Promoting ${pick(j.promo)}.`};
 }
 
-function genBit(){
-  const T=pick(GEN.bitT), noun=pick(GEN.noun), v=pick(GEN.verb), person=pick(GEN.person), adj=pick(GEN.adj);
-  const fill=s=>s.replace(/\{Noun\}/g,titleCase(noun)).replace(/\{noun\}/g,noun).replace(/\{Gerund\}/g,v[1]).replace(/\{verb\}/g,v[0])
-    .replace(/\{Person\}/g,person).replace(/\{person\}/g,person.toLowerCase()).replace(/\{Adj\}/g,titleCase(adj)).replace(/\{adj\}/g,adj);
-  return {name:fill(T.n),d:fill(T.d),w:6+Math.floor(Math.random()*11),base:.45+Math.random()*.15,gen:true,
-    win:pick(GEN.bitWin),lose:pick(GEN.bitLose)};
+/* Wildcard bits: each format only uses options that fit it */
+const BIT_FORMATS = [
+  {n:"You Take a Job: {n}", d:"You work a real shift at {p} with a hidden camera.", w:[8,12], items:[
+    {n:"Toll Booth", p:"a toll booth on the George Washington Bridge", win:"You collected tolls for an hour and told every driver about the show. The audience laughed throughout.", lose:"Traffic backed up and the Port Authority ended the shift early."},
+    {n:"Macy's Perfume Counter", p:"the perfume counter at Macy's", win:"You sprayed shoppers and sold four bottles. The audience applauded.", lose:"Store security asked you to stop spraying people."},
+    {n:"Burger Drive-Thru", p:"a burger drive-thru in New Jersey", win:"You took orders over the speaker. Most customers did not recognize you. The audience laughed throughout.", lose:"The manager recognized you and asked you to leave after five minutes."},
+    {n:"Shoe Store", p:"a shoe store in Brooklyn", win:"You talked a customer into buying two pairs of the same shoe. The audience laughed throughout.", lose:"No customers came in during the hour."}]},
+  {n:"Does It Really Work?: {n}", d:"You test {p}, sold in late night TV ads, to see if it does what the ad claims.", w:[5,8], items:[
+    {n:"The Shoe Knife", p:"a kitchen knife that claims to cut through a shoe", win:"The knife cut through the shoe and into the desk. The audience applauded.", lose:"The knife bent on the first try."},
+    {n:"Spray-On Hair", p:"a spray that claims to cover bald spots", win:"You sprayed the top of Stu's head. It looked like felt. The audience cheered.", lose:"The can clogged after one spray."},
+    {n:"The Miracle Mop", p:"a mop that claims to soak up a gallon of water", win:"The mop soaked up the whole gallon. The audience applauded.", lose:"The mop pushed the water across the floor and under the bandstand."},
+    {n:"The Egg Scrambler", p:"a gadget that claims to scramble an egg inside its shell", win:"It worked. You cracked the egg and it was scrambled. The audience applauded.", lose:"The egg exploded inside the gadget."}]},
+  {n:"Man on the Street: {n}", d:"You stand on a Midtown corner and ask people {p}.", w:[6,9], items:[
+    {n:"Name the Vice President", p:"to name the Vice President", win:"Most people could not name him. One man named his own boss. The audience laughed throughout.", lose:"Everyone you asked knew the answer."},
+    {n:"Have You Seen the Show?", p:"whether they have seen your show", win:"No one had seen it, but everyone had an opinion about it. The audience laughed throughout.", lose:"Most people walked past without stopping."},
+    {n:"What's in the Bag?", p:"to show you what is in their shopping bag", win:"A woman showed you a live lobster she bought for dinner. The audience cheered.", lose:"No one wanted to open their bags on camera."}]},
+  {n:"Hidden Camera: {n}", d:"A hidden camera records {p}.", w:[8,12], items:[
+    {n:"The Talking Mailbox", p:"people's reactions to a mailbox that talks back when they drop in a letter", win:"A man had a full conversation with the mailbox. The audience laughed throughout.", lose:"No one mailed anything during the hour."},
+    {n:"The Tiny Desk", p:"job applicants interviewed by Chuck at a very small desk", win:"Every applicant answered Chuck's questions seriously. The audience laughed throughout.", lose:"The first applicant figured it out and left."},
+    {n:"The Penny Counter", p:"newsstand customers who are given all their change in pennies", win:"One man counted all 87 pennies on the counter before leaving. The audience laughed throughout.", lose:"Everyone took the pennies without comment."}]}
+];
+function genBit(exclude){
+  exclude=exclude||[];
+  let b;
+  for(let i=0;i<20;i++){
+    const F=pick(BIT_FORMATS), it=pick(F.items);
+    b={name:F.n.replace("{n}",it.n),d:F.d.replace("{p}",it.p),w:F.w[0]+Math.floor(Math.random()*(F.w[1]-F.w[0]+1)),
+      base:.5+Math.random()*.1,gen:true,win:it.win,lose:it.lose};
+    if(!exclude.includes(b.name)) break;
+  }
+  return b;
 }
 
 function genHeadline(){ return `${pick(GEN.hSubj)} ${pick(GEN.hVerb)} ${pick(GEN.hObj)}`; }
