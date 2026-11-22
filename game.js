@@ -89,6 +89,28 @@ function render({kicker,title,body,choices}){
 function outcome(kicker,title,text,chips,next){
   render({kicker,title,body:`${text.startsWith("<")?text:`<p>${text}</p>`}${chips}`,choices:[{t:"Continue",primary:true,fn:()=>{if(checkFail(next))return;next();}}]});
 }
+/* Walt's cutaway: an automatic NPC event during awkward moments */
+function awk(kicker,title,text,chips,next){
+  if(Math.random()>=.08+S.walt*.0025) return outcome(kicker,title,text,chips,next);
+  let first,rest;
+  if(text.startsWith("<")){first=text;rest="";}
+  else{const i=text.indexOf(". ");first=i>0?text.slice(0,i+1):text;rest=i>0?text.slice(i+2):"";}
+  let shots=CUT_SHOTS.slice();
+  if(S.guest) shots.push(S.guest.name.toUpperCase());
+  Object.values(S.cast).forEach(c=>shots.push(c.name.split(" ")[0].toUpperCase()));
+  const cam=`CAMERA ${rnd(1,4)}: ${pick(shots)}`;
+  const c2=apply({ratings:3,campus:3,walt:1});
+  S.cuts=(S.cuts||0)+1; S.log.push(`Ep ${S.ep}: Walt cut away (${cam}).`);
+  if(S.cuts===3) news(5,"VIEWERS WRITE IN ABOUT LATE NIGHT'S CAMERA WORK");
+  const parts=[first.startsWith("<")?first:`<p>${first}</p>`,`<div class="cam">${cam}</div>`,`<p>${rest?rest+" ":""}${pick(CUT_REACTIONS)}</p>`];
+  render({kicker,title,body:parts.map((p,i)=>`<div class="seq" data-i="${i}">${p}</div>`).join("")+`<div class="seq" data-i="3"><p class="cutlbl">Cutaway: Walt</p>${chips}${c2}</div>`,
+    choices:[{t:"Continue",primary:true,fn:()=>{if(checkFail(next))return;next();}}]});
+  const els=[...document.querySelectorAll("#scene .seq")], btn=document.querySelector("#scene .choices");
+  btn.style.visibility="hidden";
+  const times=[0,650+rnd(0,500),1150+rnd(0,500),1700+rnd(0,300)];
+  els.forEach((el,i)=>setTimeout(()=>el.classList.add("on"),times[i]));
+  setTimeout(()=>{btn.style.visibility="visible";},times[3]);
+}
 function resolve(opt){
   if(opt.fx) return {text:opt.r||"Done.",chips:apply(opt.fx)};
   const ok=Math.random()<opt.chance;
@@ -318,7 +340,7 @@ function coldOpen(){
       if(after.k!==before&&after.k==="cult"){thread({type:"cult",name:cm.name});news(7,`${cm.name.toUpperCase()} BECOMES LATE NIGHT FAVORITE`);}
       if(after.k!==before){chips+=`<div class="chips"><span class="badge b-${after.k}" style="font-size:12px;padding:4px 8px">${cm.name.toUpperCase()} IS NOW A ${after.t}</span></div>`;S.log.push(`${cm.name} is now a ${after.t.toLowerCase()}.`);}
       S.log.push(`Ep ${S.ep}: Cold open with ${cm.name}, ${ok?"went well":"did not work"}.`);
-      outcome(K("TAPING"),"Cold open",pick(def[ok?"win":"lose"]),chips,monologue);
+      (ok?outcome:awk)(K("TAPING"),"Cold open",pick(def[ok?"win":"lose"]),chips,monologue);
     }});
   });
   render({kicker:K("TAPING"),title:"Cold open",body:`<p>The show starts in thirty seconds. Choose who opens it.</p>`,choices});
@@ -328,19 +350,19 @@ function monologue(){
   const warm=S.stu>=65?.06:S.stu<35?-.06:0;
   const warmText=S.stu>=65?"Stu's warmup got the audience going. Monologue odds are better tonight.":S.stu<35?"Stu's warmup was flat tonight. The audience is cold.":"Stu warmed up the audience.";
   const mono=MONOLOGUE.map((o,i)=>Object.assign({},o,{chance:o.chance+warm},i===0?{d:`Today's headline: "${S.headline}."`}:{}));
-  const opts=mono.map(o=>({t:o.t,d:o.d,fn:()=>{const r=resolve(o);outcome(K("TAPING"),"Monologue",r.text,r.chips,doBit);}}));
+  const opts=mono.map(o=>({t:o.t,d:o.d,fn:()=>{const r=resolve(o);(r.ok===false?awk:outcome)(K("TAPING"),"Monologue",r.text,r.chips,doBit);}}));
   opts.push({t:"Banter with Lenny",d:`Works better the more Lenny likes you. (Lenny ${S.lenny})`,crew:true,fn:()=>{
     const ok=Math.random()<.3+S.lenny*.005+warm;
     const chips=apply(ok?{ratings:6,lenny:5,morale:2,campus:2}:{ratings:-2,lenny:-3});
-    outcome(K("TAPING"),"Monologue",ok
+    (ok?outcome:awk)(K("TAPING"),"Monologue",ok
       ?say("lenny","You know, chief, I was going to tell that same joke, but I'm a professional.")+"<p>You and Lenny went back and forth for three minutes. The audience laughed throughout.</p>"
       :say("lenny","Sorry, what?")+"<p>Lenny did not hear the setup. The exchange did not work.</p>",chips,doBit);}});
   opts.push({t:"Take the camera into the control room",d:`Show viewers the people who make the show. Builds Campus Buzz. (Walt ${S.walt})`,crew:true,fn:()=>{
     const ok=Math.random()<.4+S.walt*.004;
     const chips=apply(ok?{ratings:2,campus:6,walt:3,morale:2}:{ratings:-2,campus:2,walt:-3,patience:-2});
     outcome(K("TAPING"),"Monologue",ok
-      ?say("walt","Camera two, stay on the host. Yes, we're on TV. Wave.")+"<p>You introduced the control room crew. The audience applauded them.</p>"
-      :say("walt","Not now. Please.")+"<p>Walt asked you to leave the control room on air.</p>",chips,doBit);}});
+      ?say("walt","We're on the air.")+"<p>You introduced the control room crew. The audience applauded them.</p>"
+      :say("walt","Go back to your desk.")+"<p>You went back to your desk.</p>",chips,doBit);}});
   render({kicker:K("TAPING"),title:"Monologue",body:`<p>${warmText}</p><p>The band plays you on. Choose the approach for tonight's monologue.</p>`,choices:opts});
 }
 
@@ -367,13 +389,13 @@ function doBit(){
         {t:"Have Lenny play you out",d:"Ends the bit quickly. Small ratings loss.",crew:true,fn:()=>{
           let chips=apply({ratings:-1,morale:1,lenny:3}); chips+=finishBit(-1,false,false);
           S.log.push(`Ep ${S.ep}: "${b.name}" failed. Lenny played you out.`); news(2,`CRITICS UNIMPRESSED BY "${b.name.toUpperCase()}"`);
-          outcome(K("TAPING"),"Played out","The band played you out of the segment.",chips,afterBit);}},
+          awk(K("TAPING"),"Played out","The bit ended without a laugh. The band played you out of the segment.",chips,afterBit);}},
         {t:"Keep going",d:"Make the failure part of the joke. Counts as a hit if it works.",fn:()=>{
           const sv=Math.random()<.4+S.weird*.003;
           const fx=sv?{ratings:11,weird:6,morale:3,campus:5}:{ratings:-7,weird:4,patience:-4};
           let chips=apply(fx); chips+=finishBit(fx.ratings,sv,false);
           S.log.push(`Ep ${S.ep}: "${b.name}" failed. You kept going, ${sv?"and it turned around":"and it got worse"}.`);
-          outcome(K("TAPING"),sv?"It turned around":"It got worse",sv?"You kept going and made the failure part of the joke. The audience laughed and applauded.":"You kept going. The audience did not respond, and several people left.",chips,afterBit);}}
+          (sv?outcome:awk)(K("TAPING"),sv?"It turned around":"It got worse",sv?"You kept going and made the failure part of the joke. The audience laughed and applauded.":"You kept going. The audience did not respond, and several people left.",chips,afterBit);}}
       ]});
   }
 }
@@ -390,7 +412,7 @@ function afterBit(){
         if(ok){S.gag.stage++;chips=apply({ratings:3+S.gag.stage*2,weird:2,campus:2+S.gag.stage*2});addFame(g.name,1);if(S.gag.stage>=3)news(4+S.gag.stage,`${g.name.toUpperCase()} NOW A LATE NIGHT FIXTURE`);}
         else chips=apply({ratings:-2});
         S.log.push(`Ep ${S.ep}: ${g.name}, ${ok?"played into it (level "+S.gag.stage+")":"did not work"}.`);
-        outcome(K("TAPING"),g.name,ok?"You played into it. The audience recognized it and laughed.":"You played into it, but the moment had passed.",chips,remote);}},
+        (ok?outcome:awk)(K("TAPING"),g.name,ok?"You played into it. The audience recognized it and laughed.":"You played into it, but the moment had passed.",chips,remote);}},
       {t:"Ignore it",d:"Move on with the show.",fn:()=>{const c=apply({ratings:-1});outcome(K("TAPING"),g.name,"You moved on with the show.",c,remote);}}
     ]});
 }
@@ -492,8 +514,8 @@ function maybeDisaster(){
     const chips=apply(ok?{ratings:5,walt:4}:{ratings:-3,walt:-3});
     S.log.push(`Ep ${S.ep}: ${d.name}. Walt ${ok?"handled it":"could not handle it"}.`);
     outcome(K("TAPING"),d.name,ok
-      ?say("walt","Camera two, stay on the drummer. Hold it. Hold it.")+"<p>Walt stayed on a close-up of the drummer until the problem was fixed. Viewers at home did not notice.</p>"
-      :say("walt","Go to black.")+"<p>The broadcast went black for nine seconds.</p>",chips,()=>interview(1));}});
+      ?say("walt","Two.")+"<p>Walt switched to camera two until the problem was fixed. Viewers at home did not notice.</p>"
+      :say("walt","Black.")+"<p>The broadcast went black for nine seconds.</p>",chips,()=>interview(1));}});
   render({kicker:K("TAPING"),title:`Problem: ${d.name}`,body:`<p>${d.d}</p>`,choices});
 }
 
@@ -522,7 +544,7 @@ function gravesRant(round){
   if(ok){S.gSeg++;r.good++;addFame(GRAVES.name,1);news(5,"PHILOSOPHER'S SPEECH ON LATE NIGHT DRAWS VIEWER MAIL");}
   const chips=apply(ok?{ratings:12+Math.min(6,r.apps),weird:4,campus:5}:{ratings:-3,weird:3,patience:-3});
   S.log.push(`Ep ${S.ep}: Dr. Graves, segment ${round}: ${ok?"worked":"did not work"}.`);
-  outcome(K("TAPING"),"Dr. Graves",pick(ok?GRAVES_WIN:GRAVES_LOSE),chips,round===1?()=>interview(2):wrap);
+  (ok?outcome:awk)(K("TAPING"),"Dr. Graves",pick(ok?GRAVES_WIN:GRAVES_LOSE),chips,round===1?()=>interview(2):wrap);
 }
 
 function chuckCrash(){
@@ -531,7 +553,7 @@ function chuckCrash(){
   if(ok){S.gSeg++;guestRec(g.name).good++;}
   const chips=apply(ok?{ratings:11,weird:5,chuck:6,campus:4}:{ratings:-5,chuck:-4,morale:-1});
   S.log.push(`Ep ${S.ep}: Chuck interrupted the interview as ${S.chuckChar}. ${ok?"Worked.":"Did not work."}`);
-  outcome(K("TAPING"),"Chuck",ok
+  (ok?outcome:awk)(K("TAPING"),"Chuck",ok
     ?say("chuck",`(as ${S.chuckChar}) Sorry to interrupt. I have a question for ${esc(g.name)}.`)+`<p>${esc(g.name)} played along. The audience cheered.</p>`
     :say("chuck",`(as ${S.chuckChar}) Hello.`)+`<p>${esc(g.name)} did not know how to respond. Chuck left the stage.</p>`,chips,wrap);
 }
@@ -550,7 +572,7 @@ function ivResolve(style,round){
   if(walked){gr.walk++;news(9,`${g.name.toUpperCase()} WALKS OFF LATE NIGHT SET`);thread({type:"walkoff",name:g.name});}
   const chips=apply(fx);
   S.log.push(`Ep ${S.ep}: ${g.name}, segment ${round}, ${STYLE_NAMES[style].toLowerCase()}: ${walked?"walked off":ok?"worked":"did not work"}.`);
-  outcome(K("TAPING"),walked?"Walk-off":"Interview",text,chips,(round===1&&!walked)?()=>interview(2):wrap);
+  (ok||walked?outcome:awk)(K("TAPING"),walked?"Walk-off":"Interview",text,chips,(round===1&&!walked)?()=>interview(2):wrap);
 }
 
 /* ---------- After the show ---------- */
@@ -589,12 +611,12 @@ function wrap(){
 }
 
 const CREW_LOW={arnie:"Arnie has stopped returning your calls. He has been having lunch with network executives.",
-  walt:"Walt is packing up his headset after the show. He says the news division has offered him a job.",
+  walt:"Walt mentions that the news division has offered him a job. He does not say whether he will take it.",
   lenny:"Lenny skipped the after-show meeting. He has been seen having lunch with a rival bandleader.",
   chuck:"Chuck has stopped pitching ideas. He sits in the writers' room and does not talk.",
   stu:"Stu has asked to be transferred to the soap opera on the fifth floor."};
 const CREW_HIGH={arnie:"Arnie got the network to approve a bigger budget for the rest of the season.",
-  walt:"Walt stayed until 3 AM recutting tonight's opening. He did not mention it to anyone.",
+  walt:"Walt recut tonight's opening after everyone left. He did not mention it.",
   lenny:"Lenny wrote a new theme for the roof drops.",
   chuck:"Chuck pitched eleven new characters. Three of them are very good.",
   stu:"Stu has started bringing his own camera to film the audience before the show. Viewers love the footage."};
