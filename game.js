@@ -205,21 +205,24 @@ function paper(){
       ${campusNote}${ev?`<p><b>${esc(ev.title)}.</b> ${esc(ev.text)}</p>`:""}`;
   render({kicker:K("8:30 AM"),title:"Morning paper",body,
     choices:ev?ev.a.map(a=>({t:a.t,d:a.d,fn:()=>{th.done=true;const r=resolve(a);S.log.push(`Ep ${S.ep}: ${ev.title}. ${a.t}.`);outcome(K("9:00 AM"),ev.title,r.text,r.chips,pitch);}}))
-              :[{t:"Go to the office",primary:true,fn:pitch}]});
+              :[{t:"Go to the office",primary:true,fn:()=>pitch()}]});
 }
 
 /* ---------- Pitch meeting ---------- */
-function pitch(){
-  S.bit=null; S.guest=null; S.gSeg=0; S.chuckChar=pick(CHUCK_CHARS); drawStats();
-  const wild=genBit(); wild.wild=true;
-  const fresh=shuffle(BITS.filter(b=>!S.bits[b.name])).slice(0,2).concat([wild]);
+function pitch(re){
+  S.bit=null; S.guest=null; S.gSeg=0;
+  if(!re){S.chuckChar=pick(CHUCK_CHARS);S.repitch=0;S.shown=[];}
+  drawStats();
+  const fixed=shuffle(BITS.filter(b=>!S.bits[b.name]&&!S.shown.includes(b.name))).slice(0,2);
+  const fresh=fixed.slice();
+  const taken=()=>Object.keys(S.bits).concat(S.shown,fresh.map(b=>b.name));
+  const wild=genBit(taken()); wild.wild=true; fresh.push(wild);
+  while(fresh.length<3){const w=genBit(taken());w.wild=true;fresh.push(w);}
+  fresh.forEach(b=>S.shown.push(b.name));
   const back=allBits().filter(b=>{const st=bitStatus(b.name);return st&&(st.k==="rec"||st.k==="pro");})
     .sort((a,b)=>S.bits[b.name].hits-S.bits[a.name].hits).slice(0,3);
   let opts=fresh.map(b=>({b,ret:false})).concat(back.map(b=>({b,ret:true})));
-  render({kicker:K("10:00 AM"),title:"Pitch meeting",
-    body:`<p>The writers have pitches for tonight's bit. You can also bring back a bit that has worked before.</p>
-      ${say("chuck",`I'll be around tonight as ${S.chuckChar}, if you need me.`)}`,
-    choices:opts.map(({b,ret})=>{
+  const choices=opts.map(({b,ret})=>{
       const r=S.bits[b.name];
       const d = ret
         ? `${badge(bitStatus(b.name))} Aired ${r.plays} time${r.plays===1?"":"s"}, ${r.hits} hit${r.hits===1?"":"s"}. ${bitStatus(b.name).k==="rec"?"Regular viewers know this one. Ratings bonus if it works.":"One more hit makes it recurring."}${r.plays>=3?" The audience may be getting tired of it.":""}`
@@ -229,7 +232,14 @@ function pitch(){
         const chips=apply({weird:ret?Math.ceil(b.w/3):b.w,...(b.mor?{morale:b.mor}:{})});
         outcome(K("10:15 AM"),"Bit chosen",`Tonight's bit is "${b.name}."`,chips,booking);
       }};
-    })});
+    });
+  if(S.repitch<2) choices.push({t:"Ask the writers for new pitches",
+    d:S.repitch===0?"Replaces tonight's new pitches with different ones. You can do this twice per episode.":"Replaces them one more time. The writers will not be happy about it. Staff Morale -2.",
+    fn:()=>{S.repitch++; if(S.repitch===2) apply({morale:-2}); S.log.push(`Ep ${S.ep}: Asked the writers for new pitches.`); pitch(true);}});
+  render({kicker:K("10:00 AM"),title:"Pitch meeting",
+    body:`<p>${re?"The writers go back to the room and return with new pitches.":"The writers have pitches for tonight's bit. You can also bring back a bit that has worked before."}</p>
+      ${re?"":say("chuck",`I'll be around tonight as ${S.chuckChar}, if you need me.`)}`,
+    choices});
 }
 
 function finishBit(gain,hit,legend){
