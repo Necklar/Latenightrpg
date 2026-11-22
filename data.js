@@ -136,6 +136,9 @@ const NOTES = [
   {name:"The Director", d:"The network wants to replace Walt with a younger director.",
    a:[{t:"Defend Walt",d:"Costs you with the network.",fx:{patience:-10,walt:15,morale:5}},
       {t:"Stay out of it",d:"Walt will find out.",fx:{patience:4,walt:-15}}]},
+  {name:"Video Game Sponsor", d:"A home video game company will sponsor the show for a month if you play their new game on the air.",
+   a:[{t:"Play it on the air",d:"The network gets a sponsor. Some viewers will see it as an ad.",fx:{patience:6,weird:-2,campus:2}},
+      {t:"Turn it down",d:"The staff will respect it. The network will not.",fx:{patience:-6,morale:3}}]},
   {name:"Chuck's Opera", d:"Chuck wants to perform a twelve minute opera about his landlord. The network wants it cut.",
    a:[{t:"Let Chuck do it",d:"Chuck will be happy. The network will not.",fx:{chuck:12,weird:8,patience:-6,campus:4}},
       {t:"Cut it",d:"Chuck will be disappointed.",fx:{chuck:-10,patience:5}}]}
@@ -259,16 +262,22 @@ const BACKSTAGE = [
   {name:"Publicist Swap", who:"arnie", line:"A publicist is offering a bigger star tonight if we drop our booked guest.",
    a:[{t:"Keep the original guest",d:"Loyal. No change.",fx:{morale:2},r:"You keep the original booking. Word gets around that you keep your word."},
       {t:"Take the bigger star",d:"Better ratings. The original guest will be upset.",fx:{ratings:4,patience:3,campus:-2,morale:-2},r:"The original guest is bumped. Their agent says they will never come back."}]},
+  {name:"Cable", who:"arnie", line:"The network's research people are worried about cable. They want to know why anyone would stay up for us when cable has movies all night.",
+   a:[{t:"Tell them the show is the reason",d:"Confident. The network may not like the tone.",fx:{patience:-2,campus:2,arnie:2},r:"Arnie passes the message along, slightly reworded."},
+      {t:"Promise a movie parody segment",d:"The network is reassured.",fx:{patience:4,weird:-2},r:"The network is satisfied. The writers start on a movie parody."}]},
+  {name:"TV Guide Listing", who:"arnie", line:"TV Guide needs a one-line description of the show for next week's listings.",
+   a:[{t:"Write a straight description",d:"The network approves.",fx:{patience:3},r:"The listing reads: \"Comedy and conversation.\""},
+      {t:"Write something strange",d:"Readers who notice will be curious. The network will not be pleased.",fx:{campus:4,patience:-2,weird:2},r:"The listing reads: \"Host attempts to locate his own desk.\" Several readers write in to ask what it means."}]},
   {name:"Stu's Request", who:"stu", line:"The floor crew wants a coffee machine on the studio floor. We've asked for six months.",
    a:[{t:"Buy it yourself",d:"The crew will be grateful.",fx:{stu:10,morale:3},r:"A coffee machine is installed on the studio floor that afternoon."},
       {t:"Tell Stu to ask Accounting again",d:"Nothing changes.",fx:{stu:-6},r:"Stu goes back to Accounting. They say no again."}]}
 ];
 
-/* Campus Buzz milestones (high school and college viewers) */
+/* Campus Buzz milestones (high school and college viewers, 1982: word of mouth only) */
 const CAMPUS_MILESTONES = [
-  {at:25,t:"A college radio station in Ohio has started playing clips of the show."},
-  {at:40,t:"Students at several high schools are quoting your bits in the hallways."},
-  {at:55,t:"A fan-made newsletter about the show is being photocopied and passed around dorms."},
-  {at:70,t:"Students are lining up outside the building for tickets. Advertisers who want young viewers have called the network.",fx:{patience:10}},
-  {at:85,t:"Your show is the most talked-about thing on college campuses this semester."}
+  {at:25,t:"Kids at a few high schools in New Jersey are staying up past their bedtimes to watch the show."},
+  {at:40,t:"At lunch tables, kids who stayed up are describing last night's show in detail to kids who missed it."},
+  {at:55,t:"College radio stations are describing your segments on the air. A photocopied fan newsletter is going around the dorms."},
+  {at:70,t:"Fan letters from students are arriving by the bag. Students are lining up outside the building for tickets. Advertisers who want young viewers have called the network.",fx:{patience:10}},
+  {at:85,t:"A kid in Ohio whose family owns a VCR has taped every episode and holds viewings for friends after school. Kids who have never seen the show can quote it."}
 ];

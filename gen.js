@@ -24,7 +24,7 @@ const GEN = {
     {j:"orthodontist",t:"dull",talent:["Has a collection of 400 retainers.","Can identify celebrities by their teeth."],
      quirk:["Keeps commenting on people's teeth.","Brought a model of a jaw."],promo:["a dental hygiene filmstrip for schools","a practice opening in Paramus"]},
     {j:"pet psychic",t:"odd",talent:["Will read the mind of any animal in the building.","Says she can talk to the pigeons on the roof."],
-     quirk:["Says the studio has a strange energy.","Brought a client's poodle."],promo:["a book of conversations with Park Avenue poodles","a pet psychic hotline"]},
+     quirk:["Says the studio has a strange energy.","Brought a client's poodle."],promo:["a book of conversations with Park Avenue poodles","a pet psychic advice column"]},
     {j:"roller disco champion",t:"charming",talent:["Will skate a routine across the stage.","Can skate backwards while juggling."],
      quirk:["Will not take off the skates.","Brought a portable disco ball."],promo:["a roller rink opening in New Jersey","an exercise record for skaters"]},
     {j:"playwright",t:"volatile",talent:["Will perform a monologue from the new play.","Will critique your monologue."],
@@ -47,7 +47,7 @@ const GEN = {
     {n:"{Noun} Cam",d:"A camera is attached to a {noun} and sent somewhere in the city."},
     {n:"Late Night {Noun} Theater",d:"The staff performs a dramatic reading using {noun}s as the cast."}
   ],
-  noun:["toaster","pigeon","bagel","traffic cone","parking ticket","houseplant","lawn flamingo","rotary phone","bowling trophy","garden gnome"],
+  noun:["toaster","pigeon","bagel","traffic cone","parking ticket","houseplant","lawn flamingo","push-button phone","bowling trophy","garden gnome"],
   verb:[["iron","Ironing"],["whistle","Whistling"],["knit","Knitting"],["juggle","Juggling"],["yodel","Yodeling"],["gift-wrap","Gift-Wrapping"]],
   person:["Cab Driver","Doorman","Hot Dog Vendor","Crossing Guard","Tugboat Captain","Lunch Lady","Locksmith","Night Janitor"],
   adj:["saddest","loudest","most suspicious","shiniest","least necessary"],
