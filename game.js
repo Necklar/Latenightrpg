@@ -146,7 +146,8 @@ function title(){
   const saved=load(); const hof=getHof();
   const fame=Object.entries(getFame()).sort((a,b)=>b[1]-a[1]).slice(0,5);
   render({kicker:"A TEXT RPG",title:"You have your own late night show.",
-    body:`<p>It's 1982. UBC, a network owned by Consolidated Electric, has given you the 12:30 AM time slot, a small studio on the sixth floor of the UBC Tower, and eight episodes to prove the show works.</p>
+    body:`<p>It's February 1982. There are three television networks. UBC, owned by Consolidated Electric, has given you the 12:30 AM time slot, a small studio on the sixth floor of the UBC Tower, and eight episodes to prove the show works.</p>
+      <p>There is no way to rewatch the show. Very few families own a VCR. If you weren't awake at 12:30, you heard about it at school the next day.</p>
       <p>Your staff:</p>
       ${Object.keys(CREW).map(k=>say(k,CREW[k].blurb)).join("")}
       <p><b>How it works.</b> Each episode you choose a bit, book a guest, deal with the network and the staff, then tape the show.</p>
@@ -178,6 +179,7 @@ function paper(){
   const ev=th?callbackEvent(th):null;
   const body=`<div class="paper"><div class="mast">${PAPERS[(S.ep-1)%PAPERS.length]}</div><div class="pdate">${epDate(S.ep)}</div>
       <div class="head">${esc(top)}</div>${second?`<div class="sub2">ALSO: ${esc(second)}</div>`:""}<div class="sub2">CITY: ${esc(S.headline)}</div></div>
+      ${S.ep>1&&S.campus>=20?`<p>${S.campus>=50?"At school today, a kid whose family has a VCR is inviting friends over to watch last night's tape.":"At school today, kids who stayed up are describing last night's show to kids who didn't."}</p>`:""}
       ${campusNote}${ev?`<p><b>${esc(ev.title)}.</b> ${esc(ev.text)}</p>`:""}`;
   render({kicker:K("8:30 AM"),title:"Morning paper",body,
     choices:ev?ev.a.map(a=>({t:a.t,d:a.d,fn:()=>{th.done=true;const r=resolve(a);S.log.push(`Ep ${S.ep}: ${ev.title}. ${a.t}.`);outcome(K("9:00 AM"),ev.title,r.text,r.chips,pitch);}}))
@@ -578,7 +580,7 @@ function wrap(){
   const isLast=S.ep>=EPISODES;
   const critics={great:["\"The most dangerous hour on television.\" The Village Voice","\"Strange, and very funny.\" Daily News"],ok:["\"Occasionally brilliant, frequently baffling.\" TV Guide","\"A show for people who can't sleep.\" The Post"],bad:["\"Hard to watch.\" The Times","\"I have seen better television in a laundromat.\" Variety"]};
   render({kicker:K("AFTER THE SHOW"),title:"Notes meeting",
-    body:`<div class="big">${share} share</div><p class="q">${pick(critics[tier])}</p>
+    body:`<p>Nielsen overnight share for last night's show:</p><div class="big">${share} share</div><p class="q">${pick(critics[tier])}</p>
       ${say("arnie",arnieNote(tier))}${say(q[0],q[1])}
       <p>Ratings drop slightly each week unless the show keeps improving.</p>${chips}${promo}`,
     choices:[{t:isLast?"Hear the network's decision":"Next episode",primary:true,fn:()=>{
