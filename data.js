@@ -13,7 +13,7 @@ const CREW = {
   arnie:{n:"Arnie", full:"Arnie Weintraub", role:"Executive Producer",
     blurb:"Thirty years in television. Handles the network, the budget and the guests' agents. Worries about every stunt."},
   walt:{n:"Walt", full:"Walt Brannigan", role:"Director",
-    blurb:"Runs the control room. Calls the camera shots during the taping."},
+    blurb:"Directed UBC's original late night show in the 1950s. Runs the control room. Says very little."},
   lenny:{n:"Lenny", full:"Lenny Sparks", role:"Bandleader",
     blurb:"Leads the house band and trades banter with you during the show."},
   chuck:{n:"Chuck", full:"Chuck Dooley", role:"Staff Writer and Performer",
@@ -28,9 +28,9 @@ const CHUCK_CHARS = ["The Man Who Lives in the Air Vent","Uncle Grizzle, the 400
 
 /* Crew dialogue after each show, by how the episode went */
 const CREW_QUIPS = {
-  great:[["walt","Clean show. I'll take it."],["lenny","That was a good one, chief."],["chuck","I told you the air vent guy would work."],["stu","Audience didn't want to leave. I had to turn the lights up."],["arnie","The network called. They were polite. That never happens."]],
-  ok:[["walt","Camera three was late twice. That's on me."],["lenny","Not bad. The horns were feeling it."],["chuck","I had a better ending but nobody asked."],["stu","Solid crowd. A little quiet in the back."],["arnie","Fine. It was fine. Get some sleep."]],
-  bad:[["walt","Well. We got it on tape."],["lenny","We'll always have the theme song."],["chuck","I've been in worse. I once did dinner theater in Delaware."],["stu","Half the audience left before the guest. I counted."],["arnie","Don't read the papers tomorrow. I'll read them for you."]]
+  great:[["walt","Fine."],["lenny","That was a good one, chief."],["chuck","I told you the air vent guy would work."],["stu","Audience didn't want to leave. I had to turn the lights up."],["arnie","The network called. They were polite. That never happens."]],
+  ok:[["walt","Camera three was late. That's on me."],["lenny","Not bad. The horns were feeling it."],["chuck","I had a better ending but nobody asked."],["stu","Solid crowd. A little quiet in the back."],["arnie","Fine. It was fine. Get some sleep."]],
+  bad:[["walt","We got it on tape."],["lenny","We'll always have the theme song."],["chuck","I've been in worse. I once did dinner theater in Delaware."],["stu","Half the audience left before the guest. I counted."],["arnie","Don't read the papers tomorrow. I'll read them for you."]]
 };
 
 /* Bits: plain descriptions and plain results */
@@ -281,3 +281,7 @@ const CAMPUS_MILESTONES = [
   {at:70,t:"Fan letters from students are arriving by the bag. Students are lining up outside the building for tickets. Advertisers who want young viewers have called the network.",fx:{patience:10}},
   {at:85,t:"A kid in Ohio whose family owns a VCR has taped every episode and holds viewings for friends after school. Kids who have never seen the show can quote it."}
 ];
+
+/* Walt's cutaways: quick, unannounced camera switches during awkward moments */
+const CUT_SHOTS = ["LENNY","STU","THE DRUMMER","AUDIENCE, ROW 3","THE DESK","STAGE LEFT","THE BAND","WIDE SHOT","THE CUE CARDS","THE EXIT SIGN"];
+const CUT_REACTIONS = ["You stopped mid-sentence. The audience laughed.","You looked toward the control room. The audience laughed.","You lost your place for a moment. The audience laughed.","You started to speak, then didn't. The audience laughed.","You turned to see what was on the monitor. The audience laughed."];
