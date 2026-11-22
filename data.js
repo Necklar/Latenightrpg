@@ -37,28 +37,26 @@ const CREW_QUIPS = {
 const BITS = [
   {name:"Bodega Taste Test", d:"Blindfolded audience members taste snacks from the corner store and guess what they are.", w:5, base:.62,
    win:"Three audience members guessed every snack correctly. The audience laughed and applauded.", lose:"No one could identify the snacks. The audience was quiet."},
-  {name:"Elevator Theater", d:"Hidden cameras in the building's elevator while you perform scenes from Shakespeare for people riding it.", w:15, base:.5,
-   win:"An accountant joined in and performed a full scene with you. The audience applauded.", lose:"Most people took the stairs. The footage was mostly an empty elevator."},
   {name:"Crank Call the Chairman", d:"Call the chairman of Consolidated Electric live on the air.", w:10, base:.48, pat:-8,
    win:"The chairman picked up and played along for two minutes. The audience applauded.", lose:"His secretary put you on hold for the rest of the segment."},
   {name:"Hydraulic Press Hour", d:"Crush household items with a hydraulic press borrowed from a shop in New Jersey.", w:12, base:.56,
    win:"The bowling ball broke the press. The audience cheered.", lose:"The items crushed slowly and without much effect. The audience lost interest."},
-  {name:"Rate My Pigeon", d:"Viewers bring pigeons from Central Park and you rate them.", w:20, base:.45,
-   win:"One pigeon walked the length of the desk on cue. The audience cheered.", lose:"All six pigeons flew into the rafters. The segment ended early."},
   {name:"Intern Cam", d:"An intern wears a camera on his head and goes to buy hot dogs in Times Square.", w:10, base:.56, mor:-3,
    win:"The intern was pulled into a Broadway rehearsal on the way. The audience laughed throughout.", lose:"The camera was pointed at the sidewalk for most of the trip."},
   {name:"The Grievance Mailbag", d:"Read the angriest viewer letters out loud, in full.", w:4, base:.62,
    win:"The longest letter was nine pages about your tie. The audience laughed throughout.", lose:"Most of the letters were sad rather than angry. The audience was quiet."},
-  {name:"Hallway Bowling", d:"Set up bowling pins at the end of the sixth floor hallway.", w:14, base:.5,
-   win:"You rolled a strike on the first try. The audience cheered.", lose:"The ball rolled into the elevator and the doors closed. The segment ended."},
   {name:"Ask the Night Watchman", d:"The building's overnight security guard answers viewer questions.", w:8, base:.55,
    win:"His answers were short and direct. The audience laughed at each one.", lose:"He fell asleep during the second question."},
-  {name:"Fruitcake Forensics", d:"Examine the oldest fruitcake in Manhattan with a lab coat and a magnifying glass.", w:9, base:.55,
-   win:"A lab confirmed the fruitcake was from 1957. The audience applauded.", lose:"There was not much to find. The audience was quiet."},
-  {name:"Weather From the Broom Closet", d:"Do a weather forecast from inside a supply closet.", w:11, base:.52,
-   win:"The forecast turned out to be accurate. The audience laughed and applauded.", lose:"The closet door locked. The rest of the segment was muffled."},
-  {name:"Stuff We Found in the Couch", d:"Search the green room couch on camera and appraise what you find.", w:7, base:.58,
-   win:"You found a 1961 subway token and a letter addressed to a sportscaster. The audience laughed.", lose:"You found mostly crumbs. The audience was quiet."}
+  {name:"Audience Talent Night", d:"Audience members show off a strange skill they have practiced for years.", w:8, base:.6,
+   win:"A retired dentist from Yonkers whistled the national anthem through his nose. The audience gave him a standing ovation.", lose:"The first contestant's skill took four minutes to set up. The audience lost interest."},
+  {name:"Pets With Skills", d:"Viewers bring pets that can do exactly one trick.", w:9, base:.58,
+   win:"A dachshund from Queens rolled a ball back to you on command. The audience cheered.", lose:"None of the pets would do their trick under the studio lights."},
+  {name:"Small Town News", d:"Read real, odd items clipped from small town newspapers.", w:4, base:.64,
+   win:"An item about a cow that wandered into a school board meeting got the biggest laugh. The audience applauded.", lose:"The items were more sad than odd. The audience was quiet."},
+  {name:"Yellow Pages Call", d:"Open the Manhattan Yellow Pages to a random page and call the business live.", w:7, base:.56,
+   win:"A tuxedo rental shop owner stayed on the line for three minutes and offered you a discount. The audience laughed throughout.", lose:"The first business hung up. The second was an answering machine."},
+  {name:"The Tour They Don't Give", d:"Take a camera crew through parts of the UBC Tower the network does not show the public.", w:9, base:.55, pat:-4,
+   win:"You showed viewers the executive dining room and the closet where old sets are stored. The audience laughed throughout.", lose:"Every door you tried was locked. A guard followed you the whole time."}
 ];
 const BRING_BACK_BONUS = 3;
 
