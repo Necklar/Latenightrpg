@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daniel Mandel's Trivia Attack!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1530; --bg2:#1b2350; --ink:#f5f7ff; --muted:#a9b2d9;
+    --gold:#ffd166; --a:#ef476f; --b:#118ab2; --c:#f4a261; --d:#06d6a0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:Inter,system-ui,sans-serif;color:var(--ink);
+    background:radial-gradient(ellipse at top,#26306b 0%,var(--bg) 60%);
+    min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;
+  }
+  h1,h2,.q,.tile,.btn,.badge,.big{font-family:Fredoka,Inter,sans-serif}
+  .screen{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:3vh 4vw;gap:3vh}
+  .screen.on{display:flex}
+
+  /* setup */
+  .logo{font-size:clamp(40px,7vw,96px);margin:0;text-align:center;line-height:1}
+  .logo span{color:var(--gold)}
+  .sub{color:var(--muted);font-size:clamp(16px,1.8vw,24px);text-align:center;margin:0}
+  .names{display:grid;grid-template-columns:repeat(2,minmax(220px,340px));gap:16px}
+  .names input{
+    font:600 clamp(18px,2vw,26px) Inter,sans-serif;padding:14px 18px;border-radius:14px;
+    border:2px solid #3a4590;background:var(--bg2);color:var(--ink);outline:none;
+  }
+  .names input:focus{border-color:var(--gold)}
+  .btn{
+    font-size:clamp(20px,2.2vw,30px);font-weight:600;border:0;border-radius:999px;
+    padding:14px 40px;background:var(--gold);color:#222;cursor:pointer;
+    box-shadow:0 6px 0 #b38b2e;transition:transform .08s;
+  }
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b38b2e}
+  .btn.ghost{background:transparent;color:var(--muted);box-shadow:none;border:2px solid #3a4590;padding:10px 26px;font-size:clamp(16px,1.6vw,22px)}
+  .keys{color:var(--muted);font-size:clamp(13px,1.3vw,17px);text-align:center}
+  kbd{background:var(--bg2);border:1px solid #3a4590;border-radius:6px;padding:2px 8px;font-family:Inter}
+
+  /* game */
+  #game{justify-content:flex-start;padding-top:3vh}
+  .topbar{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .badge{background:var(--bg2);border:2px solid #3a4590;border-radius:999px;padding:8px 22px;font-size:clamp(16px,1.8vw,26px);font-weight:600}
+  .badge.cat{color:var(--gold)}
+  .progress{width:100%;height:8px;background:var(--bg2);border-radius:99px;overflow:hidden}
+  .progress div{height:100%;background:var(--gold);transition:width .4s}
+  .q{font-size:clamp(28px,4.2vw,64px);font-weight:600;text-align:center;line-height:1.15;max-width:1400px;margin:1vh 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:2vh 2vw;width:100%;max-width:1400px}
+  .tile{
+    display:flex;align-items:center;gap:18px;padding:2.2vh 2vw;border-radius:20px;
+    font-size:clamp(22px,2.8vw,44px);font-weight:600;color:#fff;min-height:11vh;
+    transition:opacity .4s, transform .4s, filter .4s;
+  }
+  .tile .let{flex:none;width:1.6em;height:1.6em;border-radius:50%;background:rgba(0,0,0,.25);display:grid;place-items:center;font-size:.8em}
+  .tile:nth-child(1){background:var(--a)} .tile:nth-child(2){background:var(--b)}
+  .tile:nth-child(3){background:var(--c)} .tile:nth-child(4){background:var(--d);color:#08372b}
+  .revealed .tile.wrong{opacity:.22;filter:grayscale(.7);transform:scale(.97)}
+  .revealed .tile.right{transform:scale(1.04);box-shadow:0 0 0 6px var(--gold),0 0 40px rgba(255,209,102,.6)}
+  .fact{
+    max-width:1400px;width:100%;background:var(--bg2);border-left:8px solid var(--gold);
+    border-radius:14px;padding:2vh 2vw;font-size:clamp(17px,2vw,30px);line-height:1.35;
+    visibility:hidden;opacity:0;transition:opacity .5s;
+  }
+  .fact b{color:var(--gold)}
+  .revealed ~ .fact{visibility:visible;opacity:1}
+  .controls{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+
+  /* scoreboard */
+  .scores{
+    width:100%;display:flex;justify-content:center;gap:2vw;flex-wrap:wrap;
+    padding:1.6vh 2vw;background:rgba(0,0,0,.25);border-top:2px solid #2b3570;
+  }
+  .scores.hide{display:none}
+  .chip{display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:999px;padding:6px 8px 6px 22px;font-size:clamp(16px,1.9vw,28px);font-weight:600}
+  .chip .pts{font-family:Fredoka;color:var(--gold);min-width:1.4em;text-align:center;font-size:1.2em}
+  .chip button{width:1.7em;height:1.7em;border-radius:50%;border:0;font:700 1em Inter;cursor:pointer}
+  .chip .plus{background:var(--d);color:#08372b}
+  .chip .minus{background:#3a4590;color:var(--ink)}
+  .chip.bump{animation:bump .35s}
+  @keyframes bump{50%{transform:scale(1.12)}}
+
+  /* end */
+  .podium{display:flex;flex-direction:column;gap:14px;width:min(900px,90vw)}
+  .row{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border-radius:18px;padding:16px 28px;font-family:Fredoka;font-size:clamp(22px,3vw,44px);opacity:0;transform:translateY(20px);transition:all .6s}
+  .row.show{opacity:1;transform:none}
+  .row.win{background:linear-gradient(90deg,#b8860b,#ffd166);color:#2a1f00}
+  .big{font-size:clamp(36px,6vw,88px);margin:0;text-align:center}
+  .confetti{position:fixed;top:-20px;width:12px;height:18px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+  .sets{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .setbtn{font:600 clamp(18px,2vw,26px) Fredoka,sans-serif;padding:12px 28px;border-radius:16px;border:3px solid #3a4590;background:var(--bg2);color:var(--ink);cursor:pointer}
+  .setbtn.sel{border-color:var(--gold);color:var(--gold)}
+  .setbtn small{display:block;font:500 13px Inter;color:var(--muted)}
+  .row-btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:center}
+  .corner{position:fixed;top:14px;right:16px;z-index:5}
+  .corner .btn.ghost{padding:6px 16px;font-size:15px}
+  table.lb{border-collapse:collapse;width:min(1000px,92vw);font-size:clamp(18px,2.2vw,32px)}
+  table.lb th{color:var(--muted);font:600 clamp(13px,1.3vw,18px) Inter;text-transform:uppercase;letter-spacing:.05em;padding:8px 14px;text-align:right}
+  table.lb th:first-child,table.lb td:first-child{text-align:left}
+  table.lb td{padding:14px;text-align:right;background:var(--bg2);border-bottom:4px solid var(--bg);font-family:Fredoka}
+  table.lb tr:first-child td{color:var(--gold)}
+  table.lb td.w{color:var(--gold)}
+  .empty{color:var(--muted);font-size:clamp(18px,2vw,26px);text-align:center}
+  .modal{position:fixed;inset:0;background:rgba(5,8,25,.8);display:none;align-items:center;justify-content:center;z-index:20}
+  .modal.on{display:flex}
+  .modal .box{background:var(--bg2);border:2px solid #3a4590;border-radius:22px;padding:32px 40px;text-align:center;max-width:560px;display:flex;flex-direction:column;gap:22px}
+  .modal p{font:600 clamp(20px,2.2vw,30px) Fredoka;margin:0}
+  .saved{color:var(--muted);font-size:clamp(14px,1.4vw,18px);text-align:center;margin:0}
+  /* splash */
+  #splash{cursor:pointer;position:relative;overflow:hidden;gap:2vh}
+  .sp-pre{font:600 clamp(26px,4vw,60px) Fredoka,sans-serif;color:var(--ink);margin:0;opacity:0}
+  .sp-title{font-family:Bungee,Fredoka,sans-serif;font-size:clamp(56px,11vw,190px);line-height:.95;margin:0;text-align:center;color:var(--gold);
+    text-shadow:0 6px 0 #b8860b,0 12px 30px rgba(0,0,0,.5);opacity:0}
+  .sp-tag{font:500 clamp(22px,3vw,46px) Fredoka,sans-serif;color:var(--muted);font-style:italic;margin:1vh 0 0;opacity:0}
+  .sp-go{position:absolute;bottom:6vh;font:600 clamp(16px,1.8vw,26px) Inter,sans-serif;color:var(--ink);opacity:0}
+  .fly{position:absolute;width:clamp(70px,9vw,140px);aspect-ratio:1;border-radius:22%;display:grid;place-items:center;
+    font:700 clamp(36px,5vw,80px) Fredoka,sans-serif;color:#fff;opacity:0;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .fly.f1{background:var(--a);top:10vh;left:9vw;--r:-14deg;--fx:-60vw;--fy:-40vh}
+  .fly.f2{background:var(--b);top:12vh;right:10vw;--r:12deg;--fx:60vw;--fy:-40vh}
+  .fly.f3{background:var(--c);bottom:16vh;left:12vw;--r:10deg;--fx:-60vw;--fy:40vh}
+  .fly.f4{background:var(--d);color:#08372b;bottom:14vh;right:12vw;--r:-10deg;--fx:60vw;--fy:40vh}
+  .fly{transform:rotate(var(--r))}
+  .fly span{display:grid;place-items:center;width:100%;height:100%;border-radius:inherit;background:inherit}
+  .play .fly{animation:flyin .8s cubic-bezier(.2,1.4,.4,1) both}
+  .play .fly span{animation:bob 3s ease-in-out 1.6s infinite}
+  .play .f2{animation-delay:.15s}.play .f3{animation-delay:.3s}.play .f4{animation-delay:.45s}
+  .play .sp-pre{animation:fade .6s ease .7s both}
+  .play .sp-title{animation:slam .7s cubic-bezier(.2,1.6,.4,1) 1s both}
+  .play .sp-tag{animation:fade .9s ease 1.9s both}
+  .play .sp-go{animation:fade .6s ease 2.8s forwards, pulse 1.6s ease-in-out 3.4s infinite}
+  @keyframes flyin{from{opacity:0;transform:translate(var(--fx),var(--fy)) rotate(200deg) scale(.4)}to{opacity:1;transform:rotate(var(--r))}}
+  @keyframes bob{50%{transform:translateY(-14px)}}
+  @keyframes slam{0%{opacity:0;transform:scale(3)}100%{opacity:1;transform:scale(1)}}
+  @keyframes fade{to{opacity:1}}
+  @keyframes pulse{50%{opacity:.35}}
+  .logo2{font-family:Bungee,Fredoka,sans-serif;font-size:clamp(34px,5.5vw,80px);margin:0;text-align:center;line-height:1.05;color:var(--gold)}
+  .logo2 small{display:block;font:600 .5em Fredoka,sans-serif;color:var(--ink)}
+  .resume{display:none;flex-direction:column;align-items:center;gap:14px;position:absolute;bottom:5vh;z-index:3;background:rgba(15,21,48,.85);border:2px solid var(--gold);border-radius:22px;padding:18px 30px}
+  .resume.on{display:flex}
+  .resume p{margin:0;font:600 clamp(18px,2vw,28px) Fredoka,sans-serif;text-align:center}
+  @media (max-width:700px){.grid{grid-template-columns:1fr}.names{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<section id="splash" class="screen on">
+  <div class="fly f1"><span>A</span></div><div class="fly f2"><span>B</span></div><div class="fly f3"><span>C</span></div><div class="fly f4"><span>D</span></div>
+  <p class="sp-pre">Daniel Mandel's</p>
+  <h1 class="sp-title">Trivia<br>Attack!</h1>
+  <p class="sp-tag">This is no trivial matter.</p>
+  <div class="sp-go" id="spGo">Press Space or click to begin</div>
+  <div class="resume" id="resume">
+    <p id="resumeMsg">Game in progress</p>
+    <div class="row-btns">
+      <button class="btn" id="resumeBtn">Resume Game</button>
+      <button class="btn ghost" id="discardBtn">Start a New Game</button>
+    </div>
+  </div>
+</section>
+
+<section id="setup" class="screen">
+  <h1 class="logo2"><small>Daniel Mandel's</small>Trivia Attack!</h1>
+  <p class="sub"><i>This is no trivial matter.</i></p>
+  <div class="names">
+    <input id="n0" placeholder="Player 1" maxlength="16">
+    <input id="n1" placeholder="Player 2" maxlength="16">
+    <input id="n2" placeholder="Player 3" maxlength="16">
+    <input id="n3" placeholder="Player 4" maxlength="16">
+  </div>
+  <div class="sets" id="sets"></div>
+  <div class="row-btns">
+    <button class="btn" id="startBtn">Let's Play!</button>
+    <button class="btn ghost" id="lbBtn">🏆 Leaderboard</button>
+  </div>
+  <p class="keys">Host controls: <kbd>Space</kbd> reveal / next &nbsp; <kbd>&larr;</kbd> back &nbsp; <kbd>F</kbd> full screen &nbsp; Tap <b>+</b> to give points</p>
+</section>
+
+<section id="game" class="screen">
+  <div class="corner"><button class="btn ghost" id="overBtn">Start Over</button></div>
+  <div class="topbar">
+    <span class="badge" id="count">Question 1 of 25</span>
+    <span class="badge" id="setLabel">Game 1</span>
+    <span class="badge cat" id="cat">Category</span>
+  </div>
+  <div class="progress"><div id="bar"></div></div>
+  <div class="q" id="q"></div>
+  <div class="grid" id="grid"></div>
+  <div class="fact" id="fact"></div>
+  <div class="controls">
+    <button class="btn ghost" id="backBtn">&larr; Back</button>
+    <button class="btn" id="mainBtn">Reveal Answer</button>
+  </div>
+</section>
+
+<section id="end" class="screen">
+  <h2 class="big" id="winner">And the winner is...</h2>
+  <div class="podium" id="podium"></div>
+  <p class="saved" id="savedNote"></p>
+  <div class="row-btns">
+    <button class="btn" id="againBtn">Play Again</button>
+    <button class="btn ghost" id="lbBtn2">🏆 Leaderboard</button>
+  </div>
+</section>
+
+<section id="board" class="screen">
+  <h2 class="big">🏆 Leaderboard</h2>
+  <div id="lbBody"></div>
+  <div class="row-btns">
+    <button class="btn" id="lbBack">Back</button>
+    <button class="btn ghost" id="lbReset">Reset leaderboard</button>
+  </div>
+</section>
+
+<div class="modal" id="modal"><div class="box">
+  <p id="modalMsg">Are you sure?</p>
+  <div class="row-btns">
+    <button class="btn ghost" id="modalNo">Cancel</button>
+    <button class="btn" id="modalYes">Yes</button>
+  </div>
+</div></div>
+
+<div class="scores hide" id="scores"></div>
+
+<script>
+const SETS = {
+1: [
+ {cat:"Anime & Games", q:"What type of Pokémon is Pikachu?", a:["Grass","Electric","Psychic","Fairy"], c:1,
+  f:"Pikachu's name mixes two Japanese sounds: <i>pika</i>, a sparkle of electricity, and <i>chu</i>, a mouse's squeak."},
+ {cat:"Science", q:"What is the largest planet in our solar system?", a:["Saturn","Neptune","Jupiter","Uranus"], c:2,
+  f:"You could fit more than 1,300 Earths inside Jupiter."},
+ {cat:"Behind the Scenes at NBC", q:"What is the famous address of NBC's New York headquarters?", a:["1 Times Square","30 Rockefeller Plaza","1600 Broadway","221B Baker Street"], c:1,
+  f:"NBC has called 30 Rock home since 1933. <i>Saturday Night Live</i> is broadcast from Studio 8H inside."},
+ {cat:"Classical Music", q:"Who composed <i>The Four Seasons</i>?", a:["Mozart","Bach","Vivaldi","Frankie Valli"], c:2,
+  f:"Vivaldi published each of the four concertos with a sonnet describing its season. Frankie Valli's Four Seasons came about 230 years later."},
+ {cat:"Baseball", q:"How many outs are there in one full inning (both teams batting)?", a:["3","4","9","6"], c:3,
+  f:"Three outs per half inning. A perfect game means 27 batters up and 27 batters down."},
+ {cat:"Animals", q:"How many hearts does an octopus have?", a:["3","1","2","8"], c:0,
+  f:"Two hearts pump blood to the gills and one pumps it to the rest of the body. Octopus blood is blue!"},
+ {cat:"Music History", q:"Which band played <i>The Ed Sullivan Show</i> in February 1964?", a:["The Rolling Stones","The Beach Boys","The Beatles","The Monkees"], c:2,
+  f:"About 73 million Americans tuned in, one of the biggest TV audiences ever at the time."},
+ {cat:"Anime & Games", q:"In <i>Demon Slayer</i>, what is the name of Tanjiro's sister, who is turned into a demon?", a:["Nezuko","Sakura","Hinata","Mikasa"], c:0,
+  f:"Tanjiro carries Nezuko in a wooden box on his back to protect her from sunlight."},
+ {cat:"TV", q:"Kenneth the NBC page was a character on which sitcom?", a:["The Office","Parks and Recreation","30 Rock","Seinfeld"], c:2,
+  f:"Jack McBrayer played Kenneth. Tina Fey based <i>30 Rock</i> on her years as head writer at <i>SNL</i>."},
+ {cat:"Thanksgiving", q:"Which president made Thanksgiving a national holiday in 1863?", a:["George Washington","Abraham Lincoln","Teddy Roosevelt","Franklin D. Roosevelt"], c:1,
+  f:"Writer Sarah Josepha Hale, who also wrote \"Mary Had a Little Lamb,\" campaigned for 17 years to make it happen."},
+ {cat:"Baseball", q:"In 2024, who became the first player ever with 50 home runs and 50 stolen bases in one season?", a:["Aaron Judge","Mookie Betts","Juan Soto","Shohei Ohtani"], c:3,
+  f:"Ohtani reached 50/50 in a single wild game: 6 for 6, 3 home runs, 2 steals, and 10 RBIs."},
+ {cat:"Would You Believe It?", q:"What color is a polar bear's skin?", a:["Black","White","Pink","Light blue"], c:0,
+  f:"Black skin soaks up heat. The fur isn't really white either: each hair is clear and just reflects light."},
+ {cat:"Classical Music", q:"Which composer kept writing music after going almost completely deaf?", a:["Mozart","Chopin","Handel","Beethoven"], c:3,
+  f:"At the 1824 premiere of his Ninth Symphony, Beethoven had to be turned around to see the audience cheering."},
+ {cat:"Movies", q:"Which Studio Ghibli movie was the first to win the Oscar for Best Animated Feature?", a:["Spirited Away","My Neighbor Totoro","Princess Mononoke","Ponyo"], c:0,
+  f:"<i>Spirited Away</i> won in 2003. Ghibli won again in 2024 with <i>The Boy and the Heron</i>."},
+ {cat:"Behind the Scenes at NBC", q:"Who took over NBC's <i>Late Night</i> in 1993?", a:["Jay Leno","Jimmy Fallon","David Letterman","Conan O'Brien"], c:3,
+  f:"Conan was a little-known writer from <i>SNL</i> and <i>The Simpsons</i> when NBC picked him to replace Letterman."},
+ {cat:"Food", q:"Which food, found in ancient Egyptian tombs, was still edible?", a:["Bread","Honey","Cheese","Figs"], c:1,
+  f:"Honey has so little water and so much acid that bacteria can't survive in it. Sealed honey can last thousands of years."},
+ {cat:"Baseball", q:"The A's left Oakland. In which city are they playing for now?", a:["Las Vegas","San Jose","Portland","Sacramento"], c:3,
+  f:"They play at Sutter Health Park in West Sacramento, a minor league ballpark, until their new Las Vegas stadium opens, expected in 2028."},
+ {cat:"Classical Music", q:"Which Tchaikovsky ballet is a holiday tradition?", a:["The Nutcracker","Swan Lake","Sleeping Beauty","Giselle"], c:0,
+  f:"The tinkly \"Dance of the Sugar Plum Fairy\" uses the celesta, a new instrument Tchaikovsky discovered in Paris and kept secret from rival composers."},
+ {cat:"Anime & Games", q:"In <i>One Piece</i>, what does Luffy dream of becoming?", a:["Hokage","A Pokémon Master","King of the Pirates","A Demon Slayer"], c:2,
+  f:"<i>One Piece</i> started in 1997 and is the best-selling manga of all time, with over 500 million copies sold."},
+ {cat:"TV", q:"Central Perk was the coffee shop on which NBC show?", a:["Friends","Seinfeld","Frasier","Cheers"], c:0,
+  f:"The famous orange couch was reportedly found in the basement of the Warner Bros. studio."},
+ {cat:"Classical Music", q:"What does Tchaikovsky's <i>1812 Overture</i> famously use as an instrument?", a:["Fireworks","A thunder sheet","Cannons","A car horn"], c:2,
+  f:"It celebrates Russia's defeat of Napoleon. The Boston Pops has played it with real cannons on the Fourth of July since 1974."},
+ {cat:"Geography", q:"Which country has the most time zones?", a:["Russia","France","United States","China"], c:1,
+  f:"Thanks to overseas territories like French Polynesia and Réunion, France covers 12 time zones. China, as big as it is, uses just one."},
+ {cat:"History", q:"Who was the first person to walk on the moon?", a:["Buzz Aldrin","John Glenn","Yuri Gagarin","Neil Armstrong"], c:3,
+  f:"Buzz Aldrin stepped out about 19 minutes after Armstrong, in July 1969."},
+ {cat:"Thanksgiving", q:"The first Macy's Thanksgiving Day Parade was held in which year?", a:["1924","1946","1910","1963"], c:0,
+  f:"There were no balloons that first year. Instead there were live animals from the Central Park Zoo. Balloons arrived in 1927."},
+ {cat:"Grand Finale: NBC Meets Classical", q:"What three musical notes make up the famous NBC chimes?", a:["C-A-B","A-B-C","G-E-C","D-E-F"], c:2,
+  f:"In 1950, the NBC chimes became the first sound ever registered as a trademark in the U.S."}
+],
+2: [
+ {cat:"Anime & Games", q:"In <i>Naruto</i>, what does Naruto dream of becoming?", a:["Pirate King","Samurai","Hokage","Ninja Turtle"], c:2,
+  f:"Hokage means \"Fire Shadow.\" It's the title of the leader of the Hidden Leaf Village."},
+ {cat:"Science", q:"What is the hardest natural substance on Earth?", a:["Diamond","Granite","Titanium","Quartz"], c:0,
+  f:"Diamonds are pure carbon, the same element as the graphite in your pencil."},
+ {cat:"TV", q:"Which NBC sitcom was famously called \"a show about nothing\"?", a:["Cheers","Frasier","Mad About You","Seinfeld"], c:3,
+  f:"About 76 million people watched the <i>Seinfeld</i> finale in 1998."},
+ {cat:"Classical Music", q:"Who composed <i>The Blue Danube</i> waltz?", a:["Richard Strauss","Johann Strauss II","Brahms","Schubert"], c:1,
+  f:"Stanley Kubrick used it in <i>2001: A Space Odyssey</i> for the scene of a spaceship docking."},
+ {cat:"Baseball", q:"Which team has won the most World Series titles?", a:["Boston Red Sox","St. Louis Cardinals","New York Yankees","Los Angeles Dodgers"], c:2,
+  f:"The Yankees have 27 championships. The Cardinals are next with 11."},
+ {cat:"Animals", q:"What is a group of crows called?", a:["A murder","A gang","A choir","A shadow"], c:0,
+  f:"A group of owls is called a parliament, and a group of flamingos is a flamboyance."},
+ {cat:"Classic Movies", q:"Who starred as Holly Golightly in <i>Breakfast at Tiffany's</i> (1961)?", a:["Grace Kelly","Marilyn Monroe","Elizabeth Taylor","Audrey Hepburn"], c:3,
+  f:"Her little black Givenchy dress from the movie sold at auction in 2006 for more than $900,000."},
+ {cat:"Anime & Games", q:"In <i>My Neighbor Totoro</i>, what unusual ride do the girls take?", a:["A dragon train","A Catbus","A flying broom","A bubble car"], c:1,
+  f:"Totoro is so beloved that he became Studio Ghibli's logo."},
+ {cat:"Behind the Scenes at NBC", q:"Who hosted NBC's <i>Tonight Show</i> for 30 years, from 1962 to 1992?", a:["Johnny Carson","Jack Paar","Jay Leno","Ed McMahon"], c:0,
+  f:"Ed McMahon was Carson's sidekick for all 30 years, introducing him with \"Heeere's Johnny!\""},
+ {cat:"Hanukkah", q:"How many nights does Hanukkah last?", a:["7","10","8","12"], c:2,
+  f:"A Hanukkah menorah holds 9 candles. The extra one, the shamash, is used to light the others."},
+ {cat:"Baseball", q:"How far is the pitcher's mound from home plate?", a:["50 feet","60 feet, 6 inches","66 feet","90 feet"], c:1,
+  f:"That odd distance was set in 1893 and hasn't changed since. 90 feet is the distance between the bases."},
+ {cat:"Would You Believe It?", q:"Which letter doesn't appear in the name of any U.S. state?", a:["J","X","Z","Q"], c:3,
+  f:"J shows up in New Jersey, X in New Mexico and Texas, and Z in Arizona. Q is left out."},
+ {cat:"Classical Music", q:"How many keys does a standard piano have?", a:["76","88","92","100"], c:1,
+  f:"52 white keys and 36 black keys."},
+ {cat:"The '90s", q:"Which toy caused stampedes in stores during the 1996 holiday season?", a:["Furby","Beanie Babies","Tickle Me Elmo","Tamagotchi"], c:2,
+  f:"Stores sold out so quickly that some Elmos were resold for hundreds of dollars."},
+ {cat:"Anime & Games", q:"In <i>Dragon Ball</i>, how many Dragon Balls do you need to summon the dragon?", a:["7","3","5","9"], c:0,
+  f:"The dragon is named Shenron, and he grants a wish to whoever gathers all the balls."},
+ {cat:"Music History", q:"Which singer was nicknamed \"Ol' Blue Eyes\"?", a:["Dean Martin","Bing Crosby","Elvis Presley","Frank Sinatra"], c:3,
+  f:"Sinatra also won an acting Oscar, for <i>From Here to Eternity</i> in 1953."},
+ {cat:"Geography", q:"What is the smallest country in the world?", a:["Monaco","Vatican City","San Marino","Liechtenstein"], c:1,
+  f:"Vatican City covers about 120 acres, smaller than a lot of golf courses."},
+ {cat:"TV", q:"Which NBC drama set in a Chicago emergency room made George Clooney a star?", a:["Chicago Hope","Scrubs","ER","Grey's Anatomy"], c:2,
+  f:"<i>ER</i> ran for 15 seasons, from 1994 to 2009. <i>Chicago Hope</i> was its rival over on CBS."},
+ {cat:"Classical Music", q:"Who composed <i>Peter and the Wolf</i>?", a:["Prokofiev","Stravinsky","Rachmaninoff","Mussorgsky"], c:0,
+  f:"Each character is an instrument: the bird is a flute, the duck an oboe, and the wolf is three French horns."},
+ {cat:"Science", q:"How many bones are in the adult human body?", a:["106","206","306","412"], c:1,
+  f:"Babies are born with around 300. Many of them fuse together as we grow."},
+ {cat:"Food", q:"Which nut is used to make marzipan?", a:["Walnut","Peanut","Cashew","Almond"], c:3,
+  f:"Marzipan is basically almonds ground up with sugar, and it's been popular in Europe for centuries."},
+ {cat:"Baseball", q:"Who broke Major League Baseball's color barrier in 1947?", a:["Jackie Robinson","Willie Mays","Satchel Paige","Hank Aaron"], c:0,
+  f:"Every April 15, every MLB player wears Robinson's number 42."},
+ {cat:"History", q:"In what year did the Titanic sink?", a:["1898","1905","1912","1921"], c:2,
+  f:"The wreck wasn't found until 1985, about 12,500 feet down."},
+ {cat:"Video Games", q:"In which video game do players build with blocks and dodge Creepers?", a:["Roblox","Fortnite","Terraria","Minecraft"], c:3,
+  f:"Minecraft is the best-selling video game of all time, with more than 300 million copies sold."},
+ {cat:"Grand Finale: Must-See TV", q:"<i>Frasier</i> was a spin-off of which NBC sitcom?", a:["Wings","Cheers","Taxi","Family Ties"], c:1,
+  f:"Kelsey Grammer played Frasier Crane for 20 straight years, from <i>Cheers</i> in 1984 to the end of <i>Frasier</i> in 2004."}
+],
+3: [
+ {cat:"Anime & Games", q:"What is the name of Ash's hometown in <i>Pokémon</i>?", a:["Pallet Town","Viridian City","Cerulean City","Pewter City"], c:0,
+  f:"It took Ash 25 years of episodes to finally become World Champion, in 2022."},
+ {cat:"Science", q:"Which planet is known as the Red Planet?", a:["Venus","Mars","Mercury","Jupiter"], c:1,
+  f:"Mars looks red because its dust is full of iron oxide. Basically, the planet is rusty."},
+ {cat:"Behind the Scenes at NBC", q:"What bird is NBC's famous logo?", a:["Parrot","Eagle","Peacock","Flamingo"], c:2,
+  f:"The colorful peacock was created in 1956 to show off color TV. NBC later named its streaming service Peacock."},
+ {cat:"Classical Music", q:"Which composer wrote the \"Hallelujah\" chorus?", a:["Bach","Haydn","Mozart","Handel"], c:3,
+  f:"It's from Handel's <i>Messiah</i>. Legend says audiences started standing for it because King George II did."},
+ {cat:"Baseball", q:"What is a home run with the bases loaded called?", a:["A grand slam","A walk-off","A full house","A triple play"], c:0,
+  f:"A grand slam drives in four runs, the most you can score on a single swing."},
+ {cat:"Animals", q:"What is the fastest land animal?", a:["Lion","Pronghorn","Cheetah","Greyhound"], c:2,
+  f:"A cheetah can hit about 70 mph in short bursts. That's freeway speed."},
+ {cat:"Classic TV", q:"Who starred in <i>I Love Lucy</i>?", a:["Carol Burnett","Lucille Ball","Mary Tyler Moore","Doris Day"], c:1,
+  f:"She and her real-life husband Desi Arnaz ran Desilu Studios, which went on to make the original <i>Star Trek</i>."},
+ {cat:"Anime & Games", q:"Which Studio Ghibli movie is about a young witch who starts a delivery service?", a:["Howl's Moving Castle","Ponyo","Spirited Away","Kiki's Delivery Service"], c:3,
+  f:"Kiki's sidekick is a sarcastic black cat named Jiji."},
+ {cat:"Behind the Scenes at NBC", q:"In what year did <i>Saturday Night Live</i> premiere?", a:["1969","1975","1981","1985"], c:1,
+  f:"George Carlin hosted the very first episode."},
+ {cat:"Thanksgiving", q:"Which bird did Ben Franklin call \"a much more respectable bird\" than the bald eagle?", a:["The turkey","The owl","The robin","The goose"], c:0,
+  f:"He wrote it in a 1784 letter to his daughter, not as an official proposal, but the story stuck."},
+ {cat:"Baseball", q:"Which team won the 2024 World Series?", a:["New York Yankees","Los Angeles Dodgers","Houston Astros","Texas Rangers"], c:1,
+  f:"The Dodgers beat the Yankees in five games, then won again in 2025."},
+ {cat:"Would You Believe It?", q:"Which animal has fingerprints so similar to ours that they could confuse a crime lab?", a:["Chimpanzee","Raccoon","Sloth","Koala"], c:3,
+  f:"Under a microscope, koala fingerprints are very hard to tell apart from human ones."},
+ {cat:"Classical Music", q:"Which instrument is Yo-Yo Ma famous for playing?", a:["Violin","Piano","Cello","Flute"], c:2,
+  f:"He has won close to 20 Grammy Awards, more than almost any classical musician."},
+ {cat:"The '90s", q:"Which band recorded \"Smells Like Teen Spirit\"?", a:["Nirvana","Pearl Jam","Soundgarden","Green Day"], c:0,
+  f:"The title came from a deodorant called Teen Spirit. Kurt Cobain said he didn't know it was a brand."},
+ {cat:"Anime & Games", q:"In <i>Attack on Titan</i>, humanity hides from the Titans behind giant what?", a:["Mountains","Walls","Force fields","Oceans"], c:1,
+  f:"There are three walls, named Maria, Rose and Sina."},
+ {cat:"Music History", q:"Who sang \"Hound Dog\" and \"Jailhouse Rock\"?", a:["Chuck Berry","Buddy Holly","Elvis Presley","Little Richard"], c:2,
+  f:"Elvis sold out arenas for decades but never gave a concert outside North America."},
+ {cat:"Geography", q:"Which U.S. state has the most coastline?", a:["Alaska","California","Florida","Hawaii"], c:0,
+  f:"Alaska has more coastline than all the other states combined."},
+ {cat:"TV", q:"Who starred in NBC's <i>The Fresh Prince of Bel-Air</i>?", a:["Eddie Murphy","Martin Lawrence","Jamie Foxx","Will Smith"], c:3,
+  f:"Will Smith owed the IRS millions when he took the role, and the show helped him pay it off."},
+ {cat:"Classical Music", q:"Who composed \"Clair de Lune\"?", a:["Chopin","Debussy","Ravel","Satie"], c:1,
+  f:"The title is French for \"moonlight.\" It plays during the famous fountain scene in <i>Ocean's Eleven</i>."},
+ {cat:"Science", q:"At sea level, water boils at what temperature in Fahrenheit?", a:["100°","180°","212°","250°"], c:2,
+  f:"That's 100° Celsius. Up in the mountains, water boils at a lower temperature."},
+ {cat:"Food", q:"Which spice, made from crocus flowers, is the most expensive by weight?", a:["Vanilla","Cardamom","Cinnamon","Saffron"], c:3,
+  f:"Each crocus flower gives just three tiny threads of saffron, all picked by hand."},
+ {cat:"Baseball", q:"Which legend was nicknamed \"The Sultan of Swat\"?", a:["Babe Ruth","Lou Gehrig","Mickey Mantle","Ty Cobb"], c:0,
+  f:"Before he was a home run king with the Yankees, Ruth was a star pitcher for the Red Sox."},
+ {cat:"History", q:"What was the first artificial satellite, launched in 1957?", a:["Explorer 1","Sputnik","Telstar","Apollo 1"], c:1,
+  f:"Sputnik beeped as it orbited, and ham radio operators around the world could hear it."},
+ {cat:"Video Games", q:"How many players start a standard <i>Fortnite</i> Battle Royale match?", a:["50","64","100","150"], c:2,
+  f:"The last player or team still standing earns a \"Victory Royale.\""},
+ {cat:"Grand Finale: NBC Meets Classical", q:"NBC once had its own symphony orchestra, created for which famous conductor?", a:["Leonard Bernstein","Arturo Toscanini","John Williams","Herbert von Karajan"], c:1,
+  f:"The NBC Symphony played on the radio from 1937 to 1954 from Studio 8H, the same studio where <i>SNL</i> is made today."}
+]
+};
+
+let Q=SETS[1], setNum=1, players=[], scores=[], idx=0, revealed=false, saved=false;
+const $=id=>document.getElementById(id);
+const KEY='familyTriviaNight.v1';
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+const CUR='familyTriviaNight.current';
+let inGame=false;
+function saveCur(){ inGame=true; try{ localStorage.setItem(CUR,JSON.stringify({setNum,players,scores,idx,revealed})); }catch(e){} }
+function loadCur(){ try{ const c=JSON.parse(localStorage.getItem(CUR)); return (c&&SETS[c.setNum]&&Array.isArray(c.players))?c:null; }catch(e){ return null; } }
+function clearCur(){ inGame=false; try{ localStorage.removeItem(CUR); }catch(e){} }
+function loadHist(){ try{ const v=JSON.parse(localStorage.getItem(KEY)); return (v&&Array.isArray(v.games))?v:{games:[]}; }catch(e){ return {games:[]}; } }
+function saveHist(h){ try{ localStorage.setItem(KEY,JSON.stringify(h)); return true; }catch(e){ return false; } }
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  $('scores').classList.toggle('hide', id!=='game');
+}
+
+function renderSets(){
+  const h=loadHist(), box=$('sets'); box.innerHTML='';
+  Object.keys(SETS).forEach(k=>{
+    const n=h.games.filter(g=>g.set==k).length;
+    const b=document.createElement('button');
+    b.className='setbtn'+(k==setNum?' sel':'');
+    b.innerHTML=`Game ${k}<small>${n?('Played '+n+'x ✓'):'New!'}</small>`;
+    b.onclick=()=>{ setNum=+k; renderSets(); };
+    box.appendChild(b);
+  });
+}
+
+function start(){
+  players=[0,1,2,3].map(i=>$('n'+i).value.trim()||('Player '+(i+1)));
+  scores=players.map(()=>0); idx=0; saved=false; Q=SETS[setNum];
+  $('setLabel').textContent='Game '+setNum;
+  renderScores(); show('game'); render(); saveCur();
+}
+
+function render(){
+  const item=Q[idx]; revealed=false;
+  $('count').textContent=`Question ${idx+1} of ${Q.length}`;
+  $('cat').textContent=item.cat;
+  $('bar').style.width=((idx)/Q.length*100)+'%';
+  $('q').innerHTML=item.q;
+  const g=$('grid'); g.className='grid'; g.innerHTML='';
+  item.a.forEach((t,i)=>{
+    const d=document.createElement('div');
+    d.className='tile '+(i===item.c?'right':'wrong');
+    d.innerHTML=`<span class="let">${'ABCD'[i]}</span><span>${t}</span>`;
+    g.appendChild(d);
+  });
+  $('fact').innerHTML='<b>Did you know?</b> '+item.f;
+  $('mainBtn').textContent='Reveal Answer';
+  $('backBtn').style.visibility=idx===0?'hidden':'visible';
+}
+
+function showReveal(){
+  revealed=true; $('grid').classList.add('revealed');
+  $('bar').style.width=((idx+1)/Q.length*100)+'%';
+  $('mainBtn').textContent= idx===Q.length-1 ? 'See Final Scores' : 'Next Question →';
+}
+function main(){
+  if(!revealed){ showReveal(); saveCur(); }
+  else if(idx<Q.length-1){ idx++; render(); saveCur(); }
+  else finish();
+}
+function back(){ if(idx>0){idx--; render(); saveCur();} }
+function resumeGame(){
+  const c=loadCur(); if(!c) return toSetup();
+  setNum=c.setNum; Q=SETS[setNum]; players=c.players; scores=c.scores; idx=Math.min(c.idx,Q.length-1); saved=false;
+  $('setLabel').textContent='Game '+setNum;
+  renderScores(); show('game'); render(); if(c.revealed) showReveal(); inGame=true;
+}
+
+function renderScores(){
+  const s=$('scores'); s.innerHTML='';
+  players.forEach((p,i)=>{
+    const c=document.createElement('div'); c.className='chip'; c.id='chip'+i;
+    c.innerHTML=`<span>${esc(p)}</span><span class="pts">${scores[i]}</span>
+      <button class="minus" aria-label="minus">−</button><button class="plus" aria-label="plus">+</button>`;
+    c.querySelector('.plus').onclick=()=>adj(i,1);
+    c.querySelector('.minus').onclick=()=>adj(i,-1);
+    s.appendChild(c);
+  });
+}
+function adj(i,d){
+  scores[i]=Math.max(0,scores[i]+d);
+  const c=$('chip'+i); c.querySelector('.pts').textContent=scores[i];
+  c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
+  saveCur();
+}
+
+function finish(){
+  show('end');
+  const order=players.map((p,i)=>({p,s:scores[i]})).sort((a,b)=>b.s-a.s);
+  const top=order[0].s, winners=order.filter(o=>o.s===top).map(o=>o.p);
+  if(!saved){
+    const h=loadHist();
+    h.games.push({date:new Date().toISOString(), set:setNum, results:players.map((p,i)=>({name:p,score:scores[i]}))});
+    $('savedNote').textContent = saveHist(h) ? 'Results saved to the leaderboard.' : "This browser couldn't save results, so the leaderboard won't include this game.";
+    saved=true;
+  }
+  clearCur();
+  $('winner').textContent='And the winner is...';
+  const pod=$('podium'); pod.innerHTML='';
+  const rows=order.slice().reverse();
+  rows.forEach((o,k)=>{
+    const r=document.createElement('div'); r.className='row'+(o.s===top?' win':'');
+    r.innerHTML=`<span>${o.s===top?'👑 ':''}${esc(o.p)}</span><span>${o.s}</span>`;
+    pod.prepend(r);
+    setTimeout(()=>r.classList.add('show'),700+k*900);
+  });
+  setTimeout(()=>{
+    $('winner').textContent = winners.length>1 ? "It's a tie: "+winners.join(' & ')+"!" : winners[0]+'!';
+    confetti();
+  },700+rows.length*900);
+}
+
+function standings(){
+  const h=loadHist(), m={};
+  h.games.forEach(g=>{
+    const top=Math.max(...g.results.map(r=>r.score));
+    g.results.forEach(r=>{
+      const k=r.name.trim().toLowerCase();
+      if(!m[k]) m[k]={name:r.name.trim(),games:0,wins:0,points:0,best:0};
+      const e=m[k]; e.name=r.name.trim(); e.games++; e.points+=r.score; e.best=Math.max(e.best,r.score);
+      if(r.score===top && top>0) e.wins++;
+    });
+  });
+  return {list:Object.values(m).sort((a,b)=>b.wins-a.wins||b.points-a.points), n:h.games.length};
+}
+
+function showBoard(from){
+  boardFrom=from;
+  const {list,n}=standings();
+  $('lbBody').innerHTML = n===0 ? '<p class="empty">No games saved yet. Finish a game and it will show up here.</p>' :
+    `<p class="saved">${n} game${n>1?'s':''} played</p><table class="lb"><tr><th>Player</th><th>Wins</th><th>Total Points</th><th>Games</th><th>Best Game</th></tr>`+
+    list.map(e=>`<tr><td>${esc(e.name)}</td><td class="w">${e.wins}</td><td>${e.points}</td><td>${e.games}</td><td>${e.best}</td></tr>`).join('')+'</table>';
+  show('board');
+}
+let boardFrom='setup';
+
+let modalYes=null;
+function ask(msg,yesLabel,fn){ $('modalMsg').textContent=msg; $('modalYes').textContent=yesLabel; modalYes=fn; $('modal').classList.add('on'); }
+function closeModal(){ $('modal').classList.remove('on'); modalYes=null; }
+$('modalNo').onclick=closeModal;
+$('modalYes').onclick=()=>{ const f=modalYes; closeModal(); if(f) f(); };
+
+function confetti(){
+  const colors=['#ef476f','#118ab2','#f4a261','#06d6a0','#ffd166'];
+  for(let i=0;i<120;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[i%colors.length];
+    c.style.animationDuration=(2.5+Math.random()*2.5)+'s';
+    c.style.animationDelay=Math.random()*1.5+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),7000);
+  }
+}
+
+function fullscreen(){
+  try{ if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); else document.exitFullscreen(); }catch(e){}
+}
+
+function goSplash(){
+  const sp=$('splash'); sp.classList.remove('play'); show('splash'); void sp.offsetWidth; sp.classList.add('play');
+  const c=loadCur();
+  $('resume').classList.toggle('on',!!c); $('spGo').style.display=c?'none':'';
+  if(c){
+    const lead=c.players.map((p,i)=>esc(p)+' '+c.scores[i]).join(' · ');
+    $('resumeMsg').innerHTML=`Game ${c.setNum} in progress, Question ${c.idx+1} of ${SETS[c.setNum].length}<br><small style="font-weight:500;color:var(--muted)">${lead}</small>`;
+  }
+}
+function toSetup(){
+  // suggest the next unplayed game
+  const h=loadHist(); const next=Object.keys(SETS).find(k=>!h.games.some(g=>g.set==k));
+  if(next) setNum=+next;
+  renderSets(); show('setup');
+}
+
+$('startBtn').onclick=start;
+$('mainBtn').onclick=main;
+$('backBtn').onclick=back;
+$('againBtn').onclick=goSplash;
+$('splash').onclick=e=>{ if(!loadCur()) toSetup(); };
+$('resumeBtn').onclick=e=>{ e.stopPropagation(); resumeGame(); };
+$('discardBtn').onclick=e=>{ e.stopPropagation(); ask("Throw away the game in progress? Its scores won't be saved.",'Start New',()=>{ clearCur(); toSetup(); }); };
+window.addEventListener('beforeunload',e=>{ if(inGame && $('game').classList.contains('on')){ e.preventDefault(); e.returnValue=''; } });
+$('lbBtn').onclick=()=>showBoard('setup');
+$('lbBtn2').onclick=()=>showBoard('end');
+$('lbBack').onclick=()=>{ if(boardFrom==='end') show('end'); else toSetup(); };
+$('lbReset').onclick=()=>ask('Erase all saved scores and start a new season?','Erase',()=>{ saveHist({games:[]}); showBoard(boardFrom); });
+$('overBtn').onclick=()=>ask("Start over? This game's scores won't be saved.",'Start Over',()=>{ clearCur(); goSplash(); });
+document.addEventListener('keydown',e=>{
+  if($('modal').classList.contains('on')){ if(e.key==='Escape') closeModal(); return; }
+  if($('splash').classList.contains('on')){ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); if(loadCur()) resumeGame(); else toSetup(); } else if(e.key==='f'||e.key==='F') fullscreen(); return; }
+  if(e.target.tagName==='INPUT'){ if(e.key==='Enter') start(); return; }
+  if(e.key==='f'||e.key==='F') fullscreen();
+  if(!$('game').classList.contains('on')) return;
+  if(e.key===' '||e.key==='ArrowRight'||e.key==='Enter'){ e.preventDefault(); main(); }
+  if(e.key==='ArrowLeft') back();
+});
+toSetup(); goSplash();
+</script>
+</body>
+</html>
